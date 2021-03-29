@@ -75,9 +75,6 @@ public class Attendance implements Serializable {
     @JoinColumn(name = "attendance_status_id", referencedColumnName = "attendance_status_id")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private AttendanceStatus attendanceStatusId;
-    @JoinColumn(name = "approval_id", referencedColumnName = "approval_id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Approval approvalId;
 
     public Attendance() {
     }
@@ -175,14 +172,6 @@ public class Attendance implements Serializable {
 
     public void setAttendanceStatusId(AttendanceStatus attendanceStatusId) {
         this.attendanceStatusId = attendanceStatusId;
-    }
-
-    public Approval getApprovalId() {
-        return approvalId;
-    }
-
-    public void setApprovalId(Approval approvalId) {
-        this.approvalId = approvalId;
     }
 
     @Override

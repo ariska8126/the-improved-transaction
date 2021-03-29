@@ -7,7 +7,6 @@ package com.hadirapp.HadirApproval.entity;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,12 +17,10 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -36,7 +33,9 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Approval.findAll", query = "SELECT a FROM Approval a")
     , @NamedQuery(name = "Approval.findByApprovalId", query = "SELECT a FROM Approval a WHERE a.approvalId = :approvalId")
     , @NamedQuery(name = "Approval.findByApprovalDate", query = "SELECT a FROM Approval a WHERE a.approvalDate = :approvalDate")
-    , @NamedQuery(name = "Approval.findByApprovalDateUpdate", query = "SELECT a FROM Approval a WHERE a.approvalDateUpdate = :approvalDateUpdate")})
+    , @NamedQuery(name = "Approval.findByApprovalDateUpdate", query = "SELECT a FROM Approval a WHERE a.approvalDateUpdate = :approvalDateUpdate")
+    , @NamedQuery(name = "Approval.findByApprovalDateStart", query = "SELECT a FROM Approval a WHERE a.approvalDateStart = :approvalDateStart")
+    , @NamedQuery(name = "Approval.findByApprovalDateEnd", query = "SELECT a FROM Approval a WHERE a.approvalDateEnd = :approvalDateEnd")})
 public class Approval implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -56,6 +55,14 @@ public class Approval implements Serializable {
     @Lob
     @Column(name = "approval_remark")
     private String approvalRemark;
+    @Basic(optional = false)
+    @Column(name = "approval_date_start")
+    @Temporal(TemporalType.DATE)
+    private Date approvalDateStart;
+    @Basic(optional = false)
+    @Column(name = "approval_date_end")
+    @Temporal(TemporalType.DATE)
+    private Date approvalDateEnd;
     @JoinColumn(name = "request_id", referencedColumnName = "request_id")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Request requestId;
@@ -68,8 +75,6 @@ public class Approval implements Serializable {
     @JoinColumn(name = "approval_approver_id", referencedColumnName = "user_id")
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Users approvalApproverId;
-    @OneToMany(mappedBy = "approvalId", fetch = FetchType.LAZY)
-    private List<Attendance> attendanceList;
 
     public Approval() {
     }
@@ -78,11 +83,13 @@ public class Approval implements Serializable {
         this.approvalId = approvalId;
     }
 
-    public Approval(String approvalId, Date approvalDate, Date approvalDateUpdate, String approvalRemark) {
+    public Approval(String approvalId, Date approvalDate, Date approvalDateUpdate, String approvalRemark, Date approvalDateStart, Date approvalDateEnd) {
         this.approvalId = approvalId;
         this.approvalDate = approvalDate;
         this.approvalDateUpdate = approvalDateUpdate;
         this.approvalRemark = approvalRemark;
+        this.approvalDateStart = approvalDateStart;
+        this.approvalDateEnd = approvalDateEnd;
     }
 
     public String getApprovalId() {
@@ -117,6 +124,22 @@ public class Approval implements Serializable {
         this.approvalRemark = approvalRemark;
     }
 
+    public Date getApprovalDateStart() {
+        return approvalDateStart;
+    }
+
+    public void setApprovalDateStart(Date approvalDateStart) {
+        this.approvalDateStart = approvalDateStart;
+    }
+
+    public Date getApprovalDateEnd() {
+        return approvalDateEnd;
+    }
+
+    public void setApprovalDateEnd(Date approvalDateEnd) {
+        this.approvalDateEnd = approvalDateEnd;
+    }
+
     public Request getRequestId() {
         return requestId;
     }
@@ -147,15 +170,6 @@ public class Approval implements Serializable {
 
     public void setApprovalApproverId(Users approvalApproverId) {
         this.approvalApproverId = approvalApproverId;
-    }
-
-    @XmlTransient
-    public List<Attendance> getAttendanceList() {
-        return attendanceList;
-    }
-
-    public void setAttendanceList(List<Attendance> attendanceList) {
-        this.attendanceList = attendanceList;
     }
 
     @Override

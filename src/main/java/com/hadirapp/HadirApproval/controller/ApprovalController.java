@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author herli
  */
 @RestController
-@RequestMapping
+@RequestMapping("/api/transac/approval")
 @Api(tags = "Approval Management")
 public class ApprovalController {
 
