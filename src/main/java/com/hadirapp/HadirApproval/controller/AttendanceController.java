@@ -379,7 +379,7 @@ public class AttendanceController {
     }
 
     @PostMapping("/leave")
-    @ApiOperation(value = "Employee Check Out")
+    @ApiOperation(value = "Employee Leave")
     public String leave(@RequestHeader("bearer") String header, @RequestBody Map<String, ?> input) throws ParseException {
         String attendanceRemark = (String) input.get("attendanceRemark");
         String attendanceAttachment = (String) input.get("attendanceAttachment");
