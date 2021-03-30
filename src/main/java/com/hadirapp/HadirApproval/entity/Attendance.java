@@ -10,7 +10,6 @@ import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
@@ -24,19 +23,19 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author herli
+ * @author creative
  */
 @Entity
 @Table(name = "attendance")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Attendance.findAll", query = "SELECT a FROM Attendance a")
-    , @NamedQuery(name = "Attendance.findByAttendanceId", query = "SELECT a FROM Attendance a WHERE a.attendanceId = :attendanceId")
-    , @NamedQuery(name = "Attendance.findByAttendanceDate", query = "SELECT a FROM Attendance a WHERE a.attendanceDate = :attendanceDate")
-    , @NamedQuery(name = "Attendance.findByAttendanceTime", query = "SELECT a FROM Attendance a WHERE a.attendanceTime = :attendanceTime")
-    , @NamedQuery(name = "Attendance.findByAttendanceType", query = "SELECT a FROM Attendance a WHERE a.attendanceType = :attendanceType")
-    , @NamedQuery(name = "Attendance.findByAttendanceLogitude", query = "SELECT a FROM Attendance a WHERE a.attendanceLogitude = :attendanceLogitude")
-    , @NamedQuery(name = "Attendance.findByAttendanceLatitude", query = "SELECT a FROM Attendance a WHERE a.attendanceLatitude = :attendanceLatitude")})
+    @NamedQuery(name = "Attendance.findAll", query = "SELECT a FROM Attendance a"),
+    @NamedQuery(name = "Attendance.findByAttendanceId", query = "SELECT a FROM Attendance a WHERE a.attendanceId = :attendanceId"),
+    @NamedQuery(name = "Attendance.findByAttendanceDate", query = "SELECT a FROM Attendance a WHERE a.attendanceDate = :attendanceDate"),
+    @NamedQuery(name = "Attendance.findByAttendanceTime", query = "SELECT a FROM Attendance a WHERE a.attendanceTime = :attendanceTime"),
+    @NamedQuery(name = "Attendance.findByAttendanceType", query = "SELECT a FROM Attendance a WHERE a.attendanceType = :attendanceType"),
+    @NamedQuery(name = "Attendance.findByAttendanceLogitude", query = "SELECT a FROM Attendance a WHERE a.attendanceLogitude = :attendanceLogitude"),
+    @NamedQuery(name = "Attendance.findByAttendanceLatitude", query = "SELECT a FROM Attendance a WHERE a.attendanceLatitude = :attendanceLatitude")})
 public class Attendance implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -70,14 +69,11 @@ public class Attendance implements Serializable {
     @Column(name = "attendance_latitude")
     private String attendanceLatitude;
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     private Users userId;
     @JoinColumn(name = "attendance_status_id", referencedColumnName = "attendance_status_id")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     private AttendanceStatus attendanceStatusId;
-    @JoinColumn(name = "approval_id", referencedColumnName = "approval_id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Approval approvalId;
 
     public Attendance() {
     }
@@ -95,6 +91,19 @@ public class Attendance implements Serializable {
         this.attendanceType = attendanceType;
         this.attendanceLogitude = attendanceLogitude;
         this.attendanceLatitude = attendanceLatitude;
+    }
+    
+    public Attendance(String attendanceId, Date attendanceDate, Date attendanceTime, String attendanceRemark, String attendanceAttachment, String attendanceType, String attendanceLogitude, String attendanceLatitude, Users userId, AttendanceStatus attendanceStatusId) {
+        this.attendanceId = attendanceId;
+        this.attendanceDate = attendanceDate;
+        this.attendanceTime = attendanceTime;
+        this.attendanceRemark = attendanceRemark;
+        this.attendanceAttachment = attendanceAttachment;
+        this.attendanceType = attendanceType;
+        this.attendanceLogitude = attendanceLogitude;
+        this.attendanceLatitude = attendanceLatitude;
+        this.userId = userId;
+        this.attendanceStatusId = attendanceStatusId;
     }
 
     public String getAttendanceId() {
@@ -175,14 +184,6 @@ public class Attendance implements Serializable {
 
     public void setAttendanceStatusId(AttendanceStatus attendanceStatusId) {
         this.attendanceStatusId = attendanceStatusId;
-    }
-
-    public Approval getApprovalId() {
-        return approvalId;
-    }
-
-    public void setApprovalId(Approval approvalId) {
-        this.approvalId = approvalId;
     }
 
     @Override

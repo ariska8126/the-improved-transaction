@@ -24,4 +24,6 @@ public interface ApprovalRepository extends JpaRepository<Approval, String>{
     
     @Query(value="SELECT * FROM `approval` WHERE approval_approver_id =  ?1", nativeQuery = true)
     List <Approval> findByApproverID(@Param ("id") String id);
+    
+    
 }

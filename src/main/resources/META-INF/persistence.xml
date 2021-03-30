@@ -2,6 +2,17 @@
 <persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
   <persistence-unit name="com.hadirapp_HadirApproval_jar_0.0.1-SNAPSHOTPU" transaction-type="RESOURCE_LOCAL">
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <class>com.hadirapp.HadirApproval.entity.Attendance</class>
+    <class>com.hadirapp.HadirApproval.entity.BootcampDetail</class>
+    <class>com.hadirapp.HadirApproval.entity.ApprovalStatus</class>
+    <class>com.hadirapp.HadirApproval.entity.Users</class>
+    <class>com.hadirapp.HadirApproval.entity.Approval</class>
+    <class>com.hadirapp.HadirApproval.entity.Division</class>
+    <class>com.hadirapp.HadirApproval.entity.AttendanceStatus</class>
+    <class>com.hadirapp.HadirApproval.entity.CalendarHoliday</class>
+    <class>com.hadirapp.HadirApproval.entity.Role</class>
+    <class>com.hadirapp.HadirApproval.entity.Request</class>
+    <class>com.hadirapp.HadirApproval.entity.Bootcamp</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/hadir_db?zeroDateTimeBehavior=CONVERT_TO_NULL"/>
       <property name="javax.persistence.jdbc.user" value="root"/>
