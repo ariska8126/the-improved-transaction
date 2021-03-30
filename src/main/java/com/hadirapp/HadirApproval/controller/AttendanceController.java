@@ -97,31 +97,41 @@ public class AttendanceController {
     }
 
     @GetMapping("/home")
+    @ApiOperation(value = "Employee Attendance Home")
     public String homeEmployee(@RequestHeader("bearer") String header) {
+
+        System.out.println("===== Request /home in Attendance =====");
         JSONObject jSONObject = new JSONObject();
         int tokenExist = attendanceRepository.findIfExistToken(header);
         if (tokenExist == 1) {
+            System.out.println("===== Token is Exist =====");
 
             // get current date and userId
             Optional<Users> userIdObj = attendanceRepository.getUsersByToken(header);
             String userId = userIdObj.get().getUserId();
             // get user role
             String userRole = attendanceRepository.getUsersRole(userId);
-            System.out.println(userRole);
+
+            System.out.println("===== User Details =====");
+            System.out.println("User Id : " + userId);
+            System.out.println("User Role : " + userRole);
 
             // Check role 
             if (userRole.equals("employee")) {
-                System.out.println("Permit");
+
+                System.out.println("===== Permit Access =====");
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                 Date date = new Date();
                 String currDate = formatter.format(date);
                 int attendanceExist = attendanceRepository.findIfExistAttendance(currDate, userId);
-                System.out.println(attendanceExist);
 
+                // Check attendance
                 if (attendanceExist == 1) {
+                    System.out.println("===== Attendance was Exist =====");
                     Optional<Attendance> attendanceCheckIn = attendanceRepository.getStatusCheckin(currDate, userId);
 
-                    System.out.println(attendanceCheckIn);
+                    System.out.println("Check in time : " + attendanceCheckIn.get().getAttendanceTime().toString());
+                    System.out.println("===== Return JSON =====");
 
                     jSONObject.put("status", "true");
                     jSONObject.put("checkInTime", attendanceCheckIn.get().getAttendanceTime().toString());
@@ -133,7 +143,9 @@ public class AttendanceController {
                 }
 
             } else {
-                System.out.println("Access Denied");
+                System.out.println("===== Access Denied =====");
+                System.out.println("User Role : " + userRole);
+
                 jSONObject.put("status", "false");
                 jSONObject.put("description", "Access denied");
                 jSONObject.put("roleName", userRole);
@@ -141,7 +153,7 @@ public class AttendanceController {
             }
 
         } else {
-            System.out.println("No Access");
+            System.out.println("===== Wrong/Expire Token =====");
             jSONObject.put("status", "false");
             jSONObject.put("description", "you don't have authorization to access");
             return jSONObject.toJSONString();
@@ -206,48 +218,63 @@ public class AttendanceController {
             // Get user id
             Optional<Users> userIdObj = attendanceRepository.getUsersByToken(header);
             String userId = userIdObj.get().getUserId();
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-            SimpleDateFormat formatterComplete = new SimpleDateFormat("yyyyMMddhhmmss");
-            SimpleDateFormat formattertime = new SimpleDateFormat("hh:mm:ss");
-            Date date = new Date();
 
-            String currDate = formatter.format(date);
-            String time = formattertime.format(date);
-            Date currentDate = formatter.parse(currDate);
-            int countAttendance = attendanceRepository.validateCheckin(currDate, userId);
+            // get user role
+            String userRole = attendanceRepository.getUsersRole(userId);
+            System.out.println(userRole);
 
-            // value to checkin
-            String insertDate = formatterComplete.format(date);
-            String attendanceId = userId + insertDate;
-            Date currTime = formattertime.parse(time);
-            String attendanceType = "start";
+            if (userRole.equals("employee")) {
+                System.out.println("Permit");
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat formatterComplete = new SimpleDateFormat("yyyyMMddhhmmss");
+                SimpleDateFormat formattertime = new SimpleDateFormat("hh:mm:ss");
+                Date date = new Date();
 
-            Attendance attendance = new Attendance(
-                    attendanceId,
-                    currentDate,
-                    currTime,
-                    attendanceRemark,
-                    attendanceAttachment,
-                    attendanceType,
-                    attendanceLongitude,
-                    attendanceLatitude,
-                    new Users(userId),
-                    new AttendanceStatus(attendanceStatusId));
+                String currDate = formatter.format(date);
+                String time = formattertime.format(date);
+                Date currentDate = formatter.parse(currDate);
+                int countAttendance = attendanceRepository.validateCheckin(currDate, userId);
 
-            if (countAttendance == 0) { // there is no attendance on several day and user id
-                attendanceRepository.save(attendance);
+                // value to checkin
+                String insertDate = formatterComplete.format(date);
+                String attendanceId = userId + insertDate;
+                Date currTime = formattertime.parse(time);
+                String attendanceType = "start";
+
+                Attendance attendance = new Attendance(
+                        attendanceId,
+                        currentDate,
+                        currTime,
+                        attendanceRemark,
+                        attendanceAttachment,
+                        attendanceType,
+                        attendanceLongitude,
+                        attendanceLatitude,
+                        new Users(userId),
+                        new AttendanceStatus(attendanceStatusId));
+
+                if (countAttendance == 0) { // there is no attendance on several day and user id
+                    attendanceRepository.save(attendance);
+                } else {
+                    jSONObject.put("status", "false");
+                    jSONObject.put("description", "check-in failed, you've been checkin today");
+                    return jSONObject.toJSONString();
+                }
+
+                jSONObject.put("status", "true");
+                jSONObject.put("description", "check-in succesfully");
+                jSONObject.put("checkinTime", currTime);
+                jSONObject.put("checkinDate", currentDate);
+
+                return jSONObject.toJSONString();
             } else {
+                System.out.println("Access denied");
                 jSONObject.put("status", "false");
-                jSONObject.put("description", "check-in failed, you've been checkin today");
+                jSONObject.put("description", "Access denied");
+                jSONObject.put("roleName", userRole);
                 return jSONObject.toJSONString();
             }
 
-            jSONObject.put("status", "true");
-            jSONObject.put("description", "check-in succesfully");
-            jSONObject.put("checkinTime", currTime);
-            jSONObject.put("checkinDate", currentDate);
-
-            return jSONObject.toJSONString();
         } else {
             System.out.println("Not Accepted");
             jSONObject.put("status", "false");
@@ -268,75 +295,85 @@ public class AttendanceController {
 
         int tokenExist = attendanceRepository.findIfExistToken(header);
         if (tokenExist == 1) {
+            // Get user id
+            Optional<Users> userIdObj = attendanceRepository.getUsersByToken(header);
+            String userId = userIdObj.get().getUserId();
 
-        } else {
+            // get user role
+            String userRole = attendanceRepository.getUsersRole(userId);
 
-        }
+            System.out.println(userRole);
+            if (userRole.equals("employee")) {
+                System.out.println("Permit");
 
-        // Check in validation
-        // Get user id
-        Optional<Users> userIdObj = attendanceRepository.getUsersByToken(header);
-        String userId = userIdObj.get().getUserId();
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat formatterComplete = new SimpleDateFormat("yyyyMMddhhmmss");
+                SimpleDateFormat formattertime = new SimpleDateFormat("hh:mm:ss");
+                Date date = new Date();
 
-        if (userIdObj.isEmpty()) {
-            jSONObject.put("status", "false");
-            jSONObject.put("description", "you don't have authorozation to access");
-            return jSONObject.toJSONString();
-        } else {
+                String currDate = formatter.format(date);
+                String time = formattertime.format(date);
+                Date currentDate = formatter.parse(currDate);
+                int countAttendance = attendanceRepository.validateCheckout(currDate, userId);
 
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-            SimpleDateFormat formatterComplete = new SimpleDateFormat("yyyyMMddhhmmss");
-            SimpleDateFormat formattertime = new SimpleDateFormat("hh:mm:ss");
-            Date date = new Date();
+                // value to check out
+                String insertDate = formatterComplete.format(date);
+                String attendanceId = userId + insertDate;
+                Date currTime = formattertime.parse(time);
+                String attendanceType = "end";
 
-            String currDate = formatter.format(date);
-            String time = formattertime.format(date);
-            Date currentDate = formatter.parse(currDate);
-            int countAttendance = attendanceRepository.validateCheckout(currDate, userId);
+                Attendance attendance = new Attendance(
+                        attendanceId,
+                        currentDate,
+                        currTime,
+                        attendanceRemark,
+                        attendanceAttachment,
+                        attendanceType,
+                        attendanceLongitude,
+                        attendanceLatitude,
+                        new Users(userId),
+                        new AttendanceStatus(attendanceStatusId));
 
-            // value to checkin
-            String insertDate = formatterComplete.format(date);
-            String attendanceId = userId + insertDate;
-            Date currTime = formattertime.parse(time);
-            String attendanceType = "end";
+                if (countAttendance == 0) { // there is no attendance on several day and user id
+                    attendanceRepository.save(attendance);
 
-            Attendance attendance = new Attendance(
-                    attendanceId,
-                    currentDate,
-                    currTime,
-                    attendanceRemark,
-                    attendanceAttachment,
-                    attendanceType,
-                    attendanceLongitude,
-                    attendanceLatitude,
-                    new Users(userId),
-                    new AttendanceStatus(attendanceStatusId));
+                    // Attendance duration
+                    ArrayList<Long> list = new ArrayList<Long>();
+                    Iterable<Attendance> attendanceDuration = attendanceRepository.checkDuration(currDate, userId);
+                    for (Attendance attendances : attendanceDuration) {
+                        System.out.println(attendances.getAttendanceTime().getTime());
+                        list.add(attendances.getAttendanceTime().getTime());
+                    }
+                    System.out.println("Check out");
+                    System.out.println(list);
+                    long timeDiff = list.get(0) - list.get(1);
+                    long hoursDifference = TimeUnit.MILLISECONDS.toHours(timeDiff) % 24;
 
-            if (countAttendance == 0) { // there is no attendance on several day and user id
-                attendanceRepository.save(attendance);
-
-                // Attendance duration
-                ArrayList<Long> list = new ArrayList<Long>();
-                Iterable<Attendance> attendanceDuration = attendanceRepository.checkDuration(currDate, userId);
-                for (Attendance attendances : attendanceDuration) {
-                    System.out.println(attendances.getAttendanceTime().getTime());
-                    list.add(attendances.getAttendanceTime().getTime());
+                    System.out.println(hoursDifference);
+                } else {
+                    jSONObject.put("status", "false");
+                    jSONObject.put("description", "check-out failed, you've been check-out today");
+                    return jSONObject.toJSONString();
                 }
-                System.out.println("Check out");
-                System.out.println(list);
-                long timeDiff = list.get(0) - list.get(1);
-                long hoursDifference = TimeUnit.MILLISECONDS.toHours(timeDiff) % 24;
 
-                System.out.println(hoursDifference);
+                jSONObject.put("status", "true");
+                jSONObject.put("description", "check-out succesfully");
+                jSONObject.put("checkoutTime", currTime);
+                jSONObject.put("checkoutDate", currentDate);
+
+                return jSONObject.toJSONString();
+
             } else {
+                System.out.println("Access denied");
                 jSONObject.put("status", "false");
-                jSONObject.put("description", "check-out failed, you've been check-out today");
+                jSONObject.put("description", "Access denied");
+                jSONObject.put("roleName", userRole);
                 return jSONObject.toJSONString();
             }
-
-            jSONObject.put("status", "true");
-            jSONObject.put("description", "check-out succesfully");
-
+        } else {
+            System.out.println("Not Accepted");
+            jSONObject.put("status", "false");
+            jSONObject.put("description", "you don't have authorization to access");
             return jSONObject.toJSONString();
         }
     }
@@ -351,58 +388,72 @@ public class AttendanceController {
         String attendanceLatitude = (String) input.get("attendanceLatitude");
 
         JSONObject jSONObject = new JSONObject();
-        // Check in validation
-        // Get user id
-        Optional<Users> userIdObj = attendanceRepository.getUsersByToken(header);
-        String userId = userIdObj.get().getUserId();
+        int tokenExist = attendanceRepository.findIfExistToken(header);
 
-        if (userIdObj.isEmpty()) {
-            jSONObject.put("status", "false");
-            jSONObject.put("description", "you don't have authorozation to access");
-            return jSONObject.toJSONString();
-        } else {
+        if (tokenExist == 1) {
+            // Get user id
+            Optional<Users> userIdObj = attendanceRepository.getUsersByToken(header);
+            String userId = userIdObj.get().getUserId();
 
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-            SimpleDateFormat formatterComplete = new SimpleDateFormat("yyyyMMddhhmmss");
-            SimpleDateFormat formattertime = new SimpleDateFormat("hh:mm:ss");
-            Date date = new Date();
+            // get user role
+            String userRole = attendanceRepository.getUsersRole(userId);
 
-            String currDate = formatter.format(date);
-            String time = formattertime.format(date);
-            Date currentDate = formatter.parse(currDate);
-            int countAttendance = attendanceRepository.validateLeave(currDate, userId);
+            if (userRole.equals("employee")) {
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat formatterComplete = new SimpleDateFormat("yyyyMMddhhmmss");
+                SimpleDateFormat formattertime = new SimpleDateFormat("hh:mm:ss");
+                Date date = new Date();
 
-            // value to checkin
-            String insertDate = formatterComplete.format(date);
-            String attendanceId = userId + insertDate;
-            Date currTime = formattertime.parse(time);
-            String attendanceType = "end";
+                String currDate = formatter.format(date);
+                String time = formattertime.format(date);
+                Date currentDate = formatter.parse(currDate);
+                int countAttendance = attendanceRepository.validateLeave(currDate, userId);
 
-            Attendance attendance = new Attendance(
-                    attendanceId,
-                    currentDate,
-                    currTime,
-                    attendanceRemark,
-                    attendanceAttachment,
-                    attendanceType,
-                    attendanceLongitude,
-                    attendanceLatitude,
-                    new Users(userId),
-                    new AttendanceStatus(attendanceStatusId));
+                // value to checkin
+                String insertDate = formatterComplete.format(date);
+                String attendanceId = userId + insertDate;
+                Date currTime = formattertime.parse(time);
+                String attendanceType = "leave";
 
-            if (countAttendance == 0) { // there is no attendance on several day and user id
-                attendanceRepository.save(attendance);
+                Attendance attendance = new Attendance(
+                        attendanceId,
+                        currentDate,
+                        currTime,
+                        attendanceRemark,
+                        attendanceAttachment,
+                        attendanceType,
+                        attendanceLongitude,
+                        attendanceLatitude,
+                        new Users(userId),
+                        new AttendanceStatus(attendanceStatusId));
+
+                if (countAttendance == 0) { // there is no attendance on several day and user id
+                    attendanceRepository.save(attendance);
+                } else {
+                    jSONObject.put("status", "false");
+                    jSONObject.put("description", "Leave failed, you've been check-in today");
+                    return jSONObject.toJSONString();
+                }
+
+                jSONObject.put("status", "true");
+                jSONObject.put("description", "leave succesfully");
+
+                return jSONObject.toJSONString();
+
             } else {
+                System.out.println("Access denied");
                 jSONObject.put("status", "false");
-                jSONObject.put("description", "Leave failed, you've been check-in today");
+                jSONObject.put("description", "Access denied");
+                jSONObject.put("roleName", userRole);
                 return jSONObject.toJSONString();
             }
-
-            jSONObject.put("status", "true");
-            jSONObject.put("description", "leave succesfully");
-
+        } else {
+            System.out.println("Not Accepted");
+            jSONObject.put("status", "false");
+            jSONObject.put("description", "you don't have authorization to access");
             return jSONObject.toJSONString();
         }
+
     }
 
 }
