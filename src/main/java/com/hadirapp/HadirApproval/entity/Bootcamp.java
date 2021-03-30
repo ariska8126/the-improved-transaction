@@ -11,7 +11,6 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.NamedQueries;
@@ -23,16 +22,16 @@ import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author herli
+ * @author creative
  */
 @Entity
 @Table(name = "bootcamp")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Bootcamp.findAll", query = "SELECT b FROM Bootcamp b")
-    , @NamedQuery(name = "Bootcamp.findByBootcampId", query = "SELECT b FROM Bootcamp b WHERE b.bootcampId = :bootcampId")
-    , @NamedQuery(name = "Bootcamp.findByBootcampName", query = "SELECT b FROM Bootcamp b WHERE b.bootcampName = :bootcampName")
-    , @NamedQuery(name = "Bootcamp.findByBootcampActive", query = "SELECT b FROM Bootcamp b WHERE b.bootcampActive = :bootcampActive")})
+    @NamedQuery(name = "Bootcamp.findAll", query = "SELECT b FROM Bootcamp b"),
+    @NamedQuery(name = "Bootcamp.findByBootcampId", query = "SELECT b FROM Bootcamp b WHERE b.bootcampId = :bootcampId"),
+    @NamedQuery(name = "Bootcamp.findByBootcampName", query = "SELECT b FROM Bootcamp b WHERE b.bootcampName = :bootcampName"),
+    @NamedQuery(name = "Bootcamp.findByBootcampActive", query = "SELECT b FROM Bootcamp b WHERE b.bootcampActive = :bootcampActive")})
 public class Bootcamp implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -50,7 +49,7 @@ public class Bootcamp implements Serializable {
     @Basic(optional = false)
     @Column(name = "bootcamp_active")
     private String bootcampActive;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "bootcampId", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "bootcampId")
     private List<BootcampDetail> bootcampDetailList;
 
     public Bootcamp() {

@@ -11,7 +11,6 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -24,16 +23,16 @@ import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author herli
+ * @author creative
  */
 @Entity
 @Table(name = "approval_status")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "ApprovalStatus.findAll", query = "SELECT a FROM ApprovalStatus a")
-    , @NamedQuery(name = "ApprovalStatus.findByApprovalStatusId", query = "SELECT a FROM ApprovalStatus a WHERE a.approvalStatusId = :approvalStatusId")
-    , @NamedQuery(name = "ApprovalStatus.findByApprovalStatusName", query = "SELECT a FROM ApprovalStatus a WHERE a.approvalStatusName = :approvalStatusName")
-    , @NamedQuery(name = "ApprovalStatus.findByApprovalStatusActive", query = "SELECT a FROM ApprovalStatus a WHERE a.approvalStatusActive = :approvalStatusActive")})
+    @NamedQuery(name = "ApprovalStatus.findAll", query = "SELECT a FROM ApprovalStatus a"),
+    @NamedQuery(name = "ApprovalStatus.findByApprovalStatusId", query = "SELECT a FROM ApprovalStatus a WHERE a.approvalStatusId = :approvalStatusId"),
+    @NamedQuery(name = "ApprovalStatus.findByApprovalStatusName", query = "SELECT a FROM ApprovalStatus a WHERE a.approvalStatusName = :approvalStatusName"),
+    @NamedQuery(name = "ApprovalStatus.findByApprovalStatusActive", query = "SELECT a FROM ApprovalStatus a WHERE a.approvalStatusActive = :approvalStatusActive")})
 public class ApprovalStatus implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -48,7 +47,7 @@ public class ApprovalStatus implements Serializable {
     @Basic(optional = false)
     @Column(name = "approval_status_active")
     private String approvalStatusActive;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "approvalStatusId", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "approvalStatusId")
     private List<Approval> approvalList;
 
     public ApprovalStatus() {
