@@ -11,7 +11,6 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -24,16 +23,16 @@ import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author herli
+ * @author creative
  */
 @Entity
 @Table(name = "division")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Division.findAll", query = "SELECT d FROM Division d")
-    , @NamedQuery(name = "Division.findByDivisionId", query = "SELECT d FROM Division d WHERE d.divisionId = :divisionId")
-    , @NamedQuery(name = "Division.findByDivisionName", query = "SELECT d FROM Division d WHERE d.divisionName = :divisionName")
-    , @NamedQuery(name = "Division.findByDivisionActive", query = "SELECT d FROM Division d WHERE d.divisionActive = :divisionActive")})
+    @NamedQuery(name = "Division.findAll", query = "SELECT d FROM Division d"),
+    @NamedQuery(name = "Division.findByDivisionId", query = "SELECT d FROM Division d WHERE d.divisionId = :divisionId"),
+    @NamedQuery(name = "Division.findByDivisionName", query = "SELECT d FROM Division d WHERE d.divisionName = :divisionName"),
+    @NamedQuery(name = "Division.findByDivisionActive", query = "SELECT d FROM Division d WHERE d.divisionActive = :divisionActive")})
 public class Division implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -48,7 +47,7 @@ public class Division implements Serializable {
     @Basic(optional = false)
     @Column(name = "division_active")
     private String divisionActive;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "divisionId", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "divisionId")
     private List<Users> usersList;
 
     public Division() {
