@@ -68,31 +68,45 @@ public class AttendanceController {
 
     @GetMapping("/getattendancebyid/{id}")
     @ApiOperation(value = "Get attendance by id")
-    public String getAttendanceById(@PathVariable String id) {
+    public String getAttendanceById(@RequestHeader("bearer") String header, @PathVariable String id) {
+
+        System.out.println("===== Request /getattendancebyid/{id} in Attendance =====");
         JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject2 = new JSONObject();
-        Iterable<Attendance> attendances = attendanceRepository.getAllAttendanceById(id);
-        for (Attendance attendance : attendances) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("attendanceId", attendance.getAttendanceId());
-            jsonObject.put("attendanceDate", attendance.getAttendanceDate().toString());
-            jsonObject.put("attendanceTime", attendance.getAttendanceTime().toString());
-            jsonObject.put("attendanceRemark", attendance.getAttendanceRemark());
-            jsonObject.put("attendanceAttachment", attendance.getAttendanceAttachment());
-            jsonObject.put("attendanceType", attendance.getAttendanceType());
-            jsonObject.put("attendanceStatusId", attendance.getAttendanceStatusId().getAttendanceStatusId());
-            jsonObject.put("attendanceStatusName", attendance.getAttendanceStatusId().getAttendanceStatusName());
-            jsonObject.put("userId", attendance.getUserId().getUserId());
-            jsonObject.put("userFullname", attendance.getUserId().getUserFullname());
-            jsonObject.put("attendanceLongitude", attendance.getAttendanceLogitude());
-            jsonObject.put("attendanceLatitude", attendance.getAttendanceLatitude());
+        int tokenExist = attendanceRepository.findIfExistToken(header);
 
-            jsonArray.add(jsonObject);
+        if (tokenExist == 1) {
+            System.out.println("===== Token is Exist =====");
+            Iterable<Attendance> attendances = attendanceRepository.getAllAttendanceById(id);
+            for (Attendance attendance : attendances) {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("attendanceId", attendance.getAttendanceId());
+                jsonObject.put("attendanceDate", attendance.getAttendanceDate().toString());
+                jsonObject.put("attendanceTime", attendance.getAttendanceTime().toString());
+                jsonObject.put("attendanceRemark", attendance.getAttendanceRemark());
+                jsonObject.put("attendanceAttachment", attendance.getAttendanceAttachment());
+                jsonObject.put("attendanceType", attendance.getAttendanceType());
+                jsonObject.put("attendanceStatusId", attendance.getAttendanceStatusId().getAttendanceStatusId());
+                jsonObject.put("attendanceStatusName", attendance.getAttendanceStatusId().getAttendanceStatusName());
+                jsonObject.put("userId", attendance.getUserId().getUserId());
+                jsonObject.put("userFullname", attendance.getUserId().getUserFullname());
+                jsonObject.put("attendanceLongitude", attendance.getAttendanceLogitude());
+                jsonObject.put("attendanceLatitude", attendance.getAttendanceLatitude());
+
+                jsonArray.add(jsonObject);
+            }
+
+            jsonObject2.put("attendanceList", jsonArray);
+
+            return jsonObject2.toString();
+            
+        } else {
+            System.out.println("===== Wrong/Expire Token =====");
+            jsonObject2.put("status", "false");
+            jsonObject2.put("description", "you don't have authorization to access");
+            
+            return jsonObject2.toJSONString();
         }
-
-        jsonObject2.put("attendance_list", jsonArray);
-
-        return jsonObject2.toString();
 
     }
 
@@ -227,7 +241,7 @@ public class AttendanceController {
                 System.out.println("Permit");
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                 SimpleDateFormat formatterComplete = new SimpleDateFormat("yyyyMMddhhmmss");
-                SimpleDateFormat formattertime = new SimpleDateFormat("hh:mm:ss");
+                SimpleDateFormat formattertime = new SimpleDateFormat("HH:mm:ss");
                 Date date = new Date();
 
                 String currDate = formatter.format(date);
@@ -308,7 +322,7 @@ public class AttendanceController {
 
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                 SimpleDateFormat formatterComplete = new SimpleDateFormat("yyyyMMddhhmmss");
-                SimpleDateFormat formattertime = new SimpleDateFormat("hh:mm:ss");
+                SimpleDateFormat formattertime = new SimpleDateFormat("HH:mm:ss");
                 Date date = new Date();
 
                 String currDate = formatter.format(date);
@@ -401,7 +415,7 @@ public class AttendanceController {
             if (userRole.equals("employee")) {
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                 SimpleDateFormat formatterComplete = new SimpleDateFormat("yyyyMMddhhmmss");
-                SimpleDateFormat formattertime = new SimpleDateFormat("hh:mm:ss");
+                SimpleDateFormat formattertime = new SimpleDateFormat("HH:mm:ss");
                 Date date = new Date();
 
                 String currDate = formatter.format(date);
