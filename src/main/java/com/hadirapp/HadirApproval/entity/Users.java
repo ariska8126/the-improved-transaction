@@ -12,7 +12,6 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
@@ -28,20 +27,20 @@ import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author herli
+ * @author creative
  */
 @Entity
 @Table(name = "users")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Users.findAll", query = "SELECT u FROM Users u")
-    , @NamedQuery(name = "Users.findByUserId", query = "SELECT u FROM Users u WHERE u.userId = :userId")
-    , @NamedQuery(name = "Users.findByUserFullname", query = "SELECT u FROM Users u WHERE u.userFullname = :userFullname")
-    , @NamedQuery(name = "Users.findByUserEmail", query = "SELECT u FROM Users u WHERE u.userEmail = :userEmail")
-    , @NamedQuery(name = "Users.findByUserPassword", query = "SELECT u FROM Users u WHERE u.userPassword = :userPassword")
-    , @NamedQuery(name = "Users.findByUserActive", query = "SELECT u FROM Users u WHERE u.userActive = :userActive")
-    , @NamedQuery(name = "Users.findByUserUnixcodeValue", query = "SELECT u FROM Users u WHERE u.userUnixcodeValue = :userUnixcodeValue")
-    , @NamedQuery(name = "Users.findByUserUnixcodeDate", query = "SELECT u FROM Users u WHERE u.userUnixcodeDate = :userUnixcodeDate")})
+    @NamedQuery(name = "Users.findAll", query = "SELECT u FROM Users u"),
+    @NamedQuery(name = "Users.findByUserId", query = "SELECT u FROM Users u WHERE u.userId = :userId"),
+    @NamedQuery(name = "Users.findByUserFullname", query = "SELECT u FROM Users u WHERE u.userFullname = :userFullname"),
+    @NamedQuery(name = "Users.findByUserEmail", query = "SELECT u FROM Users u WHERE u.userEmail = :userEmail"),
+    @NamedQuery(name = "Users.findByUserPassword", query = "SELECT u FROM Users u WHERE u.userPassword = :userPassword"),
+    @NamedQuery(name = "Users.findByUserActive", query = "SELECT u FROM Users u WHERE u.userActive = :userActive"),
+    @NamedQuery(name = "Users.findByUserUnixcodeValue", query = "SELECT u FROM Users u WHERE u.userUnixcodeValue = :userUnixcodeValue"),
+    @NamedQuery(name = "Users.findByUserUnixcodeDate", query = "SELECT u FROM Users u WHERE u.userUnixcodeDate = :userUnixcodeDate")})
 public class Users implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -75,19 +74,19 @@ public class Users implements Serializable {
     @Lob
     @Column(name = "user_token")
     private String userToken;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId")
     private List<BootcampDetail> bootcampDetailList;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "approvalRequesterId", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "approvalRequesterId")
     private List<Approval> approvalList;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "approvalApproverId", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "approvalApproverId")
     private List<Approval> approvalList1;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "userId")
     private List<Attendance> attendanceList;
     @JoinColumn(name = "role_id", referencedColumnName = "role_id")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     private Role roleId;
     @JoinColumn(name = "division_id", referencedColumnName = "division_id")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     private Division divisionId;
 
     public Users() {

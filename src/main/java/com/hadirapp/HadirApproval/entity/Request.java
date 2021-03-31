@@ -12,7 +12,6 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -25,17 +24,17 @@ import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author herli
+ * @author creative
  */
 @Entity
 @Table(name = "request")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Request.findAll", query = "SELECT r FROM Request r")
-    , @NamedQuery(name = "Request.findByRequestId", query = "SELECT r FROM Request r WHERE r.requestId = :requestId")
-    , @NamedQuery(name = "Request.findByRequestDate", query = "SELECT r FROM Request r WHERE r.requestDate = :requestDate")
-    , @NamedQuery(name = "Request.findByRequestDateStart", query = "SELECT r FROM Request r WHERE r.requestDateStart = :requestDateStart")
-    , @NamedQuery(name = "Request.findByRequestDateEnd", query = "SELECT r FROM Request r WHERE r.requestDateEnd = :requestDateEnd")})
+    @NamedQuery(name = "Request.findAll", query = "SELECT r FROM Request r"),
+    @NamedQuery(name = "Request.findByRequestId", query = "SELECT r FROM Request r WHERE r.requestId = :requestId"),
+    @NamedQuery(name = "Request.findByRequestDate", query = "SELECT r FROM Request r WHERE r.requestDate = :requestDate"),
+    @NamedQuery(name = "Request.findByRequestDateStart", query = "SELECT r FROM Request r WHERE r.requestDateStart = :requestDateStart"),
+    @NamedQuery(name = "Request.findByRequestDateEnd", query = "SELECT r FROM Request r WHERE r.requestDateEnd = :requestDateEnd")})
 public class Request implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -55,7 +54,7 @@ public class Request implements Serializable {
     @Column(name = "request_date_end")
     @Temporal(TemporalType.DATE)
     private Date requestDateEnd;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "requestId", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "requestId")
     private List<Approval> approvalList;
 
     public Request() {

@@ -11,7 +11,6 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -25,15 +24,15 @@ import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author herli
+ * @author creative
  */
 @Entity
 @Table(name = "attendance_status")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "AttendanceStatus.findAll", query = "SELECT a FROM AttendanceStatus a")
-    , @NamedQuery(name = "AttendanceStatus.findByAttendanceStatusId", query = "SELECT a FROM AttendanceStatus a WHERE a.attendanceStatusId = :attendanceStatusId")
-    , @NamedQuery(name = "AttendanceStatus.findByAttendanceStatusActive", query = "SELECT a FROM AttendanceStatus a WHERE a.attendanceStatusActive = :attendanceStatusActive")})
+    @NamedQuery(name = "AttendanceStatus.findAll", query = "SELECT a FROM AttendanceStatus a"),
+    @NamedQuery(name = "AttendanceStatus.findByAttendanceStatusId", query = "SELECT a FROM AttendanceStatus a WHERE a.attendanceStatusId = :attendanceStatusId"),
+    @NamedQuery(name = "AttendanceStatus.findByAttendanceStatusActive", query = "SELECT a FROM AttendanceStatus a WHERE a.attendanceStatusActive = :attendanceStatusActive")})
 public class AttendanceStatus implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -49,7 +48,7 @@ public class AttendanceStatus implements Serializable {
     @Basic(optional = false)
     @Column(name = "attendance_status_active")
     private String attendanceStatusActive;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "attendanceStatusId", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "attendanceStatusId")
     private List<Attendance> attendanceList;
 
     public AttendanceStatus() {

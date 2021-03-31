@@ -22,17 +22,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author herli
+ * @author creative
  */
 @Entity
 @Table(name = "calendar_holiday")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "CalendarHoliday.findAll", query = "SELECT c FROM CalendarHoliday c")
-    , @NamedQuery(name = "CalendarHoliday.findByCalendarHolidayId", query = "SELECT c FROM CalendarHoliday c WHERE c.calendarHolidayId = :calendarHolidayId")
-    , @NamedQuery(name = "CalendarHoliday.findByCalendarHolidayName", query = "SELECT c FROM CalendarHoliday c WHERE c.calendarHolidayName = :calendarHolidayName")
-    , @NamedQuery(name = "CalendarHoliday.findByCalendarHolidayRemark", query = "SELECT c FROM CalendarHoliday c WHERE c.calendarHolidayRemark = :calendarHolidayRemark")
-    , @NamedQuery(name = "CalendarHoliday.findByCalendarHolidayActive", query = "SELECT c FROM CalendarHoliday c WHERE c.calendarHolidayActive = :calendarHolidayActive")})
+    @NamedQuery(name = "CalendarHoliday.findAll", query = "SELECT c FROM CalendarHoliday c"),
+    @NamedQuery(name = "CalendarHoliday.findByCalendarHolidayId", query = "SELECT c FROM CalendarHoliday c WHERE c.calendarHolidayId = :calendarHolidayId"),
+    @NamedQuery(name = "CalendarHoliday.findByCalendarHolidayName", query = "SELECT c FROM CalendarHoliday c WHERE c.calendarHolidayName = :calendarHolidayName"),
+    @NamedQuery(name = "CalendarHoliday.findByCalendarHolidayRemark", query = "SELECT c FROM CalendarHoliday c WHERE c.calendarHolidayRemark = :calendarHolidayRemark"),
+    @NamedQuery(name = "CalendarHoliday.findByCalendarHolidayActive", query = "SELECT c FROM CalendarHoliday c WHERE c.calendarHolidayActive = :calendarHolidayActive")})
 public class CalendarHoliday implements Serializable {
 
     private static final long serialVersionUID = 1L;

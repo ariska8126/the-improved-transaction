@@ -9,7 +9,6 @@ import java.io.Serializable;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -20,14 +19,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author herli
+ * @author creative
  */
 @Entity
 @Table(name = "bootcamp_detail")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "BootcampDetail.findAll", query = "SELECT b FROM BootcampDetail b")
-    , @NamedQuery(name = "BootcampDetail.findByBootcampDetailId", query = "SELECT b FROM BootcampDetail b WHERE b.bootcampDetailId = :bootcampDetailId")})
+    @NamedQuery(name = "BootcampDetail.findAll", query = "SELECT b FROM BootcampDetail b"),
+    @NamedQuery(name = "BootcampDetail.findByBootcampDetailId", query = "SELECT b FROM BootcampDetail b WHERE b.bootcampDetailId = :bootcampDetailId")})
 public class BootcampDetail implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -36,10 +35,10 @@ public class BootcampDetail implements Serializable {
     @Column(name = "bootcamp_detail_id")
     private String bootcampDetailId;
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     private Users userId;
     @JoinColumn(name = "bootcamp_id", referencedColumnName = "bootcamp_id")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     private Bootcamp bootcampId;
 
     public BootcampDetail() {

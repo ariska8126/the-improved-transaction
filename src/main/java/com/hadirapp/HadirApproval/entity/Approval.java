@@ -10,7 +10,6 @@ import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
@@ -24,18 +23,18 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author herli
+ * @author creative
  */
 @Entity
 @Table(name = "approval")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Approval.findAll", query = "SELECT a FROM Approval a")
-    , @NamedQuery(name = "Approval.findByApprovalId", query = "SELECT a FROM Approval a WHERE a.approvalId = :approvalId")
-    , @NamedQuery(name = "Approval.findByApprovalDate", query = "SELECT a FROM Approval a WHERE a.approvalDate = :approvalDate")
-    , @NamedQuery(name = "Approval.findByApprovalDateUpdate", query = "SELECT a FROM Approval a WHERE a.approvalDateUpdate = :approvalDateUpdate")
-    , @NamedQuery(name = "Approval.findByApprovalDateStart", query = "SELECT a FROM Approval a WHERE a.approvalDateStart = :approvalDateStart")
-    , @NamedQuery(name = "Approval.findByApprovalDateEnd", query = "SELECT a FROM Approval a WHERE a.approvalDateEnd = :approvalDateEnd")})
+    @NamedQuery(name = "Approval.findAll", query = "SELECT a FROM Approval a"),
+    @NamedQuery(name = "Approval.findByApprovalId", query = "SELECT a FROM Approval a WHERE a.approvalId = :approvalId"),
+    @NamedQuery(name = "Approval.findByApprovalDate", query = "SELECT a FROM Approval a WHERE a.approvalDate = :approvalDate"),
+    @NamedQuery(name = "Approval.findByApprovalDateUpdate", query = "SELECT a FROM Approval a WHERE a.approvalDateUpdate = :approvalDateUpdate"),
+    @NamedQuery(name = "Approval.findByApprovalDateStart", query = "SELECT a FROM Approval a WHERE a.approvalDateStart = :approvalDateStart"),
+    @NamedQuery(name = "Approval.findByApprovalDateEnd", query = "SELECT a FROM Approval a WHERE a.approvalDateEnd = :approvalDateEnd")})
 public class Approval implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -64,16 +63,16 @@ public class Approval implements Serializable {
     @Temporal(TemporalType.DATE)
     private Date approvalDateEnd;
     @JoinColumn(name = "request_id", referencedColumnName = "request_id")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     private Request requestId;
     @JoinColumn(name = "approval_status_id", referencedColumnName = "approval_status_id")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     private ApprovalStatus approvalStatusId;
     @JoinColumn(name = "approval_requester_id", referencedColumnName = "user_id")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     private Users approvalRequesterId;
     @JoinColumn(name = "approval_approver_id", referencedColumnName = "user_id")
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     private Users approvalApproverId;
 
     public Approval() {
@@ -99,8 +98,6 @@ public class Approval implements Serializable {
         this.approvalApproverId = approvalApproverId;
     }
     
-    
-
     public Approval(String approvalId, Date approvalDate, Date approvalDateUpdate, String approvalRemark, Date approvalDateStart, Date approvalDateEnd) {
         this.approvalId = approvalId;
         this.approvalDate = approvalDate;

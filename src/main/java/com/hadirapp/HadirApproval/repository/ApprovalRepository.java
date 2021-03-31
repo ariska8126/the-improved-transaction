@@ -6,10 +6,7 @@
 package com.hadirapp.HadirApproval.repository;
 
 import com.hadirapp.HadirApproval.entity.Approval;
-import com.hadirapp.HadirApproval.entity.Attendance;
-import com.hadirapp.HadirApproval.entity.Users;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -48,4 +45,5 @@ public interface ApprovalRepository extends JpaRepository<Approval, String> {
 
     @Query(value = "SELECT approval_requester_id FROM approval WHERE request_id = ?1 AND approval_approver_id = ?2", nativeQuery = true)
     public String findTrainerIdByManager(@Param("reqId") String reqId, @Param("appId") String appId);
+
 }
