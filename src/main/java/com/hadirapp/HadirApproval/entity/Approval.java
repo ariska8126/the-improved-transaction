@@ -83,6 +83,24 @@ public class Approval implements Serializable {
         this.approvalId = approvalId;
     }
 
+    public Approval(String approvalId, Date approvalDate, Date approvalDateUpdate, 
+            String approvalRemark, Date approvalDateStart, Date approvalDateEnd, 
+            Request requestId, ApprovalStatus approvalStatusId, Users approvalRequesterId, 
+            Users approvalApproverId) {
+        this.approvalId = approvalId;
+        this.approvalDate = approvalDate;
+        this.approvalDateUpdate = approvalDateUpdate;
+        this.approvalRemark = approvalRemark;
+        this.approvalDateStart = approvalDateStart;
+        this.approvalDateEnd = approvalDateEnd;
+        this.requestId = requestId;
+        this.approvalStatusId = approvalStatusId;
+        this.approvalRequesterId = approvalRequesterId;
+        this.approvalApproverId = approvalApproverId;
+    }
+    
+    
+
     public Approval(String approvalId, Date approvalDate, Date approvalDateUpdate, String approvalRemark, Date approvalDateStart, Date approvalDateEnd) {
         this.approvalId = approvalId;
         this.approvalDate = approvalDate;
