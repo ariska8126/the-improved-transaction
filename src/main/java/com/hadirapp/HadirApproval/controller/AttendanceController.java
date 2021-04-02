@@ -249,6 +249,7 @@ public class AttendanceController {
                 String time = formattertime.format(date);
                 Date currentDate = formatter.parse(currDate);
                 int countAttendance = attendanceRepository.validateCheckin(currDate, userId);
+                int countLeave = attendanceRepository.validateLeave(currDate, userId);
 
                 // value to checkin
                 String insertDate = formatterComplete.format(date);
@@ -268,7 +269,7 @@ public class AttendanceController {
                         new Users(userId),
                         new AttendanceStatus(attendanceStatusId));
 
-                if (countAttendance == 0) { // there is no attendance on several day and user id
+                if (countAttendance == 0 && countLeave == 0) { // there is no attendance on several day and user id
                     attendanceRepository.save(attendance);
                 } else {
                     jSONObject.put("status", "false");
@@ -450,6 +451,7 @@ public class AttendanceController {
                     } else {
                         index = String.valueOf(j);
                     }
+
                     String attendanceId = userId + insertDate + j;
                     System.out.println(attendanceId);
 

@@ -19,7 +19,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface AttendanceRepository extends JpaRepository<Attendance, String>{
-    @Query(value = "SELECT * FROM attendance where attendance.user_id = :userId", nativeQuery = true)
+    @Query(value = "SELECT * FROM attendance where attendance.user_id = :userId ORDER BY attendance_date DESC, attendance_time ASC", nativeQuery = true)
     public Iterable<Attendance> getAllAttendanceById(@Param("userId") String userId);
     
     //get user by id
