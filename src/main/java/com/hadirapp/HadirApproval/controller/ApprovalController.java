@@ -53,11 +53,11 @@ public class ApprovalController {
     private AttendanceRepository attendanceRepository;
 
     //read all approval by requester id
-    @GetMapping("/getapprovalbyrequester/{id}")
+    @GetMapping("/getapproval/{id}")
     @ApiOperation(value = "${ApprovalController.getapprovalbyrequester}")
     public String getApprovalByRequester(@PathVariable String id) {
 
-        List<Approval> approval = approvalRepository.findByRequesterID(id);
+        List<Approval> approval = approvalRepository.findByID(id);
         if (approval == null) {
             System.out.println("approval status not found");
         }
@@ -67,15 +67,29 @@ public class ApprovalController {
 
         for (Approval app : approval) {
             JSONObject jSONObject = new JSONObject();
+            
+            SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd");
+            String reqDate = formater.format(app.getRequestId().getRequestDate());
+            System.out.println("req date: "+reqDate);
+            jSONObject.put("requestId", app.getRequestId().getRequestId());
+            // modify date format for request date
+            jSONObject.put("requestDate", reqDate); 
+            jSONObject.put("requestDateStart", app.getRequestId().getRequestDateStart().toString());
+            jSONObject.put("requestDateEnd", app.getRequestId().getRequestDateEnd().toString());
+            
             jSONObject.put("approvalId", app.getApprovalId());
             jSONObject.put("approvalDate", app.getApprovalDate().toString());
             jSONObject.put("approvalDateUpdate", app.getApprovalDateUpdate().toString());
             jSONObject.put("approvalRemark", app.getApprovalRemark());
-            jSONObject.put("requestId", app.getRequestId().getRequestId());
-            jSONObject.put("approvalStatusId", app.getApprovalStatusId().getApprovalStatusName());
-            jSONObject.put("approvalRequesterId", app.getApprovalRequesterId().getUserFullname());
-            jSONObject.put("approvalApproverId", app.getApprovalApproverId().getUserFullname());
-            jSONArray.add(jSONObject);
+            
+            jSONObject.put("approvalStatusId", app.getApprovalStatusId().getApprovalStatusId().toString());
+            jSONObject.put("approvalStatusName", app.getApprovalStatusId().getApprovalStatusName());
+            jSONObject.put("approvalRequesterId", app.getApprovalRequesterId().getUserId());
+            jSONObject.put("approvalRequesterName", app.getApprovalRequesterId().getUserFullname());
+            jSONObject.put("approvalApproverId", app.getApprovalApproverId().getUserId());
+            jSONObject.put("approvalApproverName", app.getApprovalApproverId().getUserFullname());
+            
+            jSONArray.add(jSONObject);            
         }
         j.put("approvalList", jSONArray);
 
@@ -83,36 +97,60 @@ public class ApprovalController {
 
     }
 
-    //read all approval by approver id
-    @GetMapping("/getapprovalbyapprover/{id}")
-    @ApiOperation(value = "${ApprovalController.getapprovalbyapprover}")
-    public String getApprovalByApprover(@PathVariable String id) {
-
-        List<Approval> approval = approvalRepository.findByApproverID(id);
-        if (approval == null) {
-            System.out.println("approval status not found");
-        }
-
-        JSONArray jSONArray = new JSONArray();
-        JSONObject j = new JSONObject();
-
-        for (Approval app : approval) {
-            JSONObject jSONObject = new JSONObject();
-            jSONObject.put("approvalId", app.getApprovalId());
-            jSONObject.put("approvalDate", app.getApprovalDate().toString());
-            jSONObject.put("approvalDateUpdate", app.getApprovalDateUpdate().toString());
-            jSONObject.put("approvalRemark", app.getApprovalRemark());
-            jSONObject.put("requestId", app.getRequestId().getRequestId());
-            jSONObject.put("approvalStatusId", app.getApprovalStatusId().getApprovalStatusName());
-            jSONObject.put("approvalRequesterId", app.getApprovalRequesterId().getUserFullname());
-            jSONObject.put("approvalApproverId", app.getApprovalApproverId().getUserFullname());
-            jSONArray.add(jSONObject);
-        }
-        j.put("approvalList", jSONArray);
-
-        return j.toString();
-
-    }
+    //read all approval by id
+//    @GetMapping("/getapproval/{id}")
+//    @ApiOperation(value = "${ApprovalController.getapprovalbyapprover}")
+//    public String getApprovalById(@PathVariable String id) {
+//
+//        List<Approval> approval = approvalRepository.findByID(id);
+//        System.out.println("get approval");
+//        if (approval == null) {
+//            System.out.println("approval status not found");
+//        }
+//
+//        System.out.println("approval not null");
+//        JSONArray jSONArray = new JSONArray();
+//        JSONObject j = new JSONObject();
+//
+//        for (Approval app : approval) {
+//            JSONObject jSONObject = new JSONObject();
+//            jSONObject.put("approvalId", app.getApprovalId());
+//            jSONObject.put("approvalDate", app.getApprovalDate().toString());
+//            jSONObject.put("approvalDateUpdate", app.getApprovalDateUpdate().toString());
+//            
+//            jSONObject.put("approvalRemark", app.getApprovalRemark());
+//            
+//            jSONObject.put("requestId", app.getRequestId().getRequestId());
+//            jSONObject.put("approvalStatusId", app.getApprovalStatusId());
+//            System.out.println("status id: "+app.getApprovalStatusId().getApprovalStatusId().toString());
+//            
+//            jSONObject.put("approvalStatusName", app.getApprovalStatusId().getApprovalStatusName());
+//            System.out.println("status name: "+app.getApprovalStatusId().getApprovalStatusName());
+//            
+//            jSONObject.put("approvalRequesterId", app.getApprovalRequesterId().getUserId());
+//            System.out.println("status name: "+app.getApprovalRequesterId().getUserId());
+//            
+//            jSONObject.put("approvalRequesterName", app.getApprovalRequesterId().getUserFullname());
+//            System.out.println("status name: "+app.getApprovalRequesterId().getUserFullname());
+//            
+//            jSONObject.put("approvalApproverId", app.getApprovalApproverId().getUserFullname());
+//            System.out.println("status name: "+app.getApprovalApproverId().getUserFullname());
+//            
+//            jSONObject.put("approvalApproverName", app.getApprovalApproverId().getUserFullname());
+//            System.out.println("status name: "+app.getApprovalApproverId().getUserFullname());
+//            
+//            jSONArray.add(jSONObject);
+//            System.out.println("json obj added");
+//        }
+//        j.put("approvalList", jSONArray);
+//        System.out.println("list added");
+//
+//        System.out.println();
+//        
+////        return j.toString();
+//        return "test";
+//
+//    }
 
     //read detail approval
     @GetMapping("/getapprovaldetailbyrequestid/{id}")
