@@ -28,13 +28,25 @@ public interface ApprovalRepository extends JpaRepository<Approval, String> {
     @Query(value = "SELECT IF(EXISTS(SELECT * FROM approval WHERE approval_id = ?1),1,0)", nativeQuery = true)
     public int cekIfExistApprovalId(@Param("id") String id);
 
-    //if exist approval by requester id
+    //if exist approval by requester id this month
     @Query(value = "SELECT IF( EXISTS(SELECT * from approval WHERE MONTH(approval_date) = month(curdate()) AND approval_requester_id = ?1),1,0)", nativeQuery = true)
     public int cekIfExistApprovalThisMonth(@Param("id") String id);
+    
+    //if exist approval by requester id last month
+    @Query(value = "SELECT IF( EXISTS(SELECT * from approval WHERE MONTH(approval_date) = month(curdate())-1 AND approval_requester_id = ?1),1,0)", nativeQuery = true)
+    public int cekIfExistApprovalLastMonth(@Param("id") String id);
     
     //select approval by requester id
     @Query(value = "SELECT * from approval WHERE MONTH(approval_date) = month(curdate()) AND approval_requester_id = ?1", nativeQuery = true)
     public Approval findApprovalByRequesterId(@Param("id") String id);
+    
+    //select last month approval by requester id
+    @Query(value = "SELECT * from approval WHERE MONTH(approval_date) = month(curdate())-1 AND approval_requester_id = ?1", nativeQuery = true)
+    public Approval findLastMonthApprovalByRequesterId(@Param("id") String id);
+    
+    //select approval id this month approval by requester id
+    @Query(value = "SELECT approval_id from approval WHERE MONTH(approval_date) = month(curdate()) AND approval_requester_id = ?1 ORDER BY approval_date DESC LIMIT 1", nativeQuery = true)
+    public String findThisMonthApprovalIdByRequesterId(@Param("id") String id);
 
     @Query(value = "SELECT * from approval WHERE approval_id = ?1", nativeQuery = true)
     public Approval findByApprovalId(@Param("id") String id);
