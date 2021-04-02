@@ -28,7 +28,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance, String> 
     @Query(value = "SELECT att.* FROM approval a JOIN users u ON a.approval_requester_id = u.user_id JOIN attendance att ON att.user_id = u.user_id JOIN request r ON a.request_id = r.request_id WHERE r.request_id = ?1 AND approval_approver_id = ?2", nativeQuery = true)
     List<Attendance> findDetailApprovalByRequestID(@Param("rid") String reqId, @Param("id") String appId);
 
-    @Query(value = "SELECT * FROM attendance where attendance.user_id = :userId", nativeQuery = true)
+    @Query(value = "SELECT * FROM attendance where attendance.user_id = :userId ORDER BY attendance_date DESC, attendance_time ASC", nativeQuery = true)
     public Iterable<Attendance> getAllAttendanceById(@Param("userId") String userId);
 
     //get user by id

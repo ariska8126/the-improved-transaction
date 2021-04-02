@@ -11,6 +11,10 @@
     <groupId>com.hadirapp</groupId>
     <artifactId>HadirApproval</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    
+    <packaging>war</packaging>
+    <!--<packaging>jar</packaging>-->
+    
     <name>HadirApproval</name>
     <description>the improved engine</description>
     <properties>
@@ -74,10 +78,17 @@
             <artifactId>spring-web</artifactId>
             <type>jar</type>
         </dependency>
-    
+        
+        <!-- Disable the embedded Tomcat in Spring Boot -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
+        <finalName>hadirattendance</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
