@@ -28,8 +28,13 @@ public interface ApprovalRepository extends JpaRepository<Approval, String> {
     @Query(value = "SELECT IF(EXISTS(SELECT * FROM approval WHERE approval_id = ?1),1,0)", nativeQuery = true)
     public int cekIfExistApprovalId(@Param("id") String id);
 
+    //if exist approval by requester id
     @Query(value = "SELECT IF( EXISTS(SELECT * from approval WHERE MONTH(approval_date) = month(curdate()) AND approval_requester_id = ?1),1,0)", nativeQuery = true)
     public int cekIfExistApprovalThisMonth(@Param("id") String id);
+    
+    //select approval by requester id
+    @Query(value = "SELECT * from approval WHERE MONTH(approval_date) = month(curdate()) AND approval_requester_id = ?1", nativeQuery = true)
+    public Approval findApprovalByRequesterId(@Param("id") String id);
 
     @Query(value = "SELECT * from approval WHERE approval_id = ?1", nativeQuery = true)
     public Approval findByApprovalId(@Param("id") String id);
