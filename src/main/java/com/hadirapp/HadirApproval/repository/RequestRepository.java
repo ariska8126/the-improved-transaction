@@ -21,4 +21,7 @@ public interface RequestRepository extends JpaRepository<Request, String>{
     @Query(value="SELECT IF(EXISTS(SELECT * FROM request WHERE request_id = ?1),1,0)", nativeQuery = true)
     public int cekIfExistRequestId(@Param ("id") String id);
     
+    @Query(value = "SELECT * FROM `request` WHERE request_id = ?1", nativeQuery = true)
+    public Request findRequestByRequesId(@Param ("id") String id);
+    
 }

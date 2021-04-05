@@ -103,30 +103,33 @@ public class ApprovalController {
     }
 
     //read detail approval
-    @GetMapping("/getapprovaldetailbyrequestid/{id}")
+    @GetMapping("/getattendancelistbyrequestid/{id}")
     @ApiOperation(value = "List Attendance by Request ID")
-    public String getDetailApprovalByRequestId(@RequestHeader ("userId") String userId, @PathVariable String id) {
+    public String getDetailApprovalByRequestId(@PathVariable String id) {
+//    public String getDetailApprovalByRequestId(@RequestHeader ("userId") String userId, @PathVariable String id) {
 //    public String getDetailApprovalByRequestId(@RequestBody Map<String, ?> input, @PathVariable String id) {
-
 //        String userId = (String) input.get("userId");
+
         System.out.println("request id: " + id);
-        System.out.println("user id: " + userId);
 
-        String approver = userId;
-
-        int roleId = approvalRepository.findRoleUserbyId(userId);
-        System.out.println("user " + roleId);
-
-        if (roleId == 4) {
-            approver = userId;
-
-        } else if (roleId == 2) {
-            approver = approvalRepository.findTrainerIdByManager(id, userId);
-        }
-
-        System.out.println("approver: " + approver);
-
-        List<Attendance> attendances = attendanceRepository.findDetailApprovalByRequestID(id, approver);
+        //modifty get by request id
+//        System.out.println("user id: " + userId);
+//        String approver = userId;
+//        int roleId = approvalRepository.findRoleUserbyId(userId);
+//        System.out.println("user " + roleId);
+//        if (roleId == 4) {
+//            approver = userId;
+//        } else if (roleId == 2) {
+//            approver = approvalRepository.findTrainerIdByManager(id, userId);
+//        } else if(roleId == 5){
+//            String employeeBootcampId = bootcampDetailRepository.getEmployeeBootcampId(userId);
+//            System.out.println("bootcamp id");
+//            approver = bootcampDetailRepository.getTrainerByBootcampId(employeeBootcampId);
+//        }
+//        System.out.println("approver: " + approver);
+        // end modify
+//        List<Attendance> attendances = attendanceRepository.findDetailApprovalByRequestID(id, approver);
+        List<Attendance> attendances = attendanceRepository.findDetailApprovalByRequestIDnew(id);
         System.out.println("attendances: " + attendances);
         if (attendances == null) {
             System.out.println("approval status not found");
@@ -145,151 +148,106 @@ public class ApprovalController {
             jSONObject.put("attendanceType", app.getAttendanceType());
             jSONObject.put("attendanceLogitude", app.getAttendanceLogitude());
             jSONObject.put("attendanceLatitude", app.getAttendanceLatitude());
-            jSONObject.put("userId", app.getUserId().getUserFullname());
-            jSONObject.put("attendanceStatusId", app.getAttendanceStatusId().getAttendanceStatusName());
+            jSONObject.put("userId", app.getUserId().getUserId());
+            jSONObject.put("userName", app.getUserId().getUserFullname());
+            jSONObject.put("attendanceStatusId", app.getAttendanceStatusId().getAttendanceStatusId());
+            jSONObject.put("attendanceStatusName", app.getAttendanceStatusId().getAttendanceStatusName());
             jSONArray.add(jSONObject);
         }
         j.put("attendanceList", jSONArray);
 
         return j.toString();
-//    return "test";
+//        return "test";
+    }
+
+    //read detail approval
+    @GetMapping("/getapprovallistbyrequestid/{id}")
+    @ApiOperation(value = "List Approval by Request ID")
+    public String getApprovalListByRequestId(@PathVariable String id) {
+
+        System.out.println("request id: " + id);
+
+        List<Approval> attendances = approvalRepository.findListApprovalByRequestID(id);
+        System.out.println("attendances: " + attendances);
+        if (attendances == null) {
+            System.out.println("approval status not found");
+        }
+
+        JSONArray jSONArray = new JSONArray();
+        JSONObject j = new JSONObject();
+
+        for (Approval app : attendances) {
+            JSONObject jSONObject = new JSONObject();
+            
+            SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd");
+            String reqDate = formater.format(app.getRequestId().getRequestDate());
+            System.out.println("req date: " + reqDate);
+            jSONObject.put("requestId", app.getRequestId().getRequestId());
+            // modify date format for request date
+            jSONObject.put("requestDate", reqDate);
+            jSONObject.put("requestDateStart", app.getRequestId().getRequestDateStart().toString());
+            jSONObject.put("requestDateEnd", app.getRequestId().getRequestDateEnd().toString());
+
+            jSONObject.put("approvalId", app.getApprovalId());
+            jSONObject.put("approvalDate", app.getApprovalDate().toString());
+            jSONObject.put("approvalDateUpdate", app.getApprovalDateUpdate().toString());
+            jSONObject.put("approvalRemark", app.getApprovalRemark());
+
+            jSONObject.put("approvalStatusId", app.getApprovalStatusId().getApprovalStatusId().toString());
+            jSONObject.put("approvalStatusName", app.getApprovalStatusId().getApprovalStatusName());
+            jSONObject.put("approvalRequesterId", app.getApprovalRequesterId().getUserId());
+            jSONObject.put("approvalRequesterName", app.getApprovalRequesterId().getUserFullname());
+            jSONObject.put("approvalApproverId", app.getApprovalApproverId().getUserId());
+            jSONObject.put("approvalApproverName", app.getApprovalApproverId().getUserFullname());
+
+            jSONArray.add(jSONObject);
+        }
+        j.put("approvalList", jSONArray);
+
+        return j.toString();
+    }
+    
+    //read detail approval
+    @GetMapping("/getrequestbyrequestid/{id}")
+    @ApiOperation(value = "List Approval by Request ID")
+    public String getRequestByRequestId(@PathVariable String id) {
+
+        System.out.println("request id: " + id);
+
+        Request request = requestRepository.findRequestByRequesId(id);
+        System.out.println("request id: " + request.getRequestId());
+        if (request == null) {
+            System.out.println("request status not found");
+        }
+
+        JSONArray jSONArray = new JSONArray();
+        JSONObject j = new JSONObject();
+
+        
+            JSONObject jSONObject = new JSONObject();
+            
+            SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd");
+            String reqDate = formater.format(request.getRequestDate());
+            System.out.println("req date: " + reqDate);
+            jSONObject.put("requestId", request.getRequestId());
+            // modify date format for request date
+            jSONObject.put("requestDate", reqDate);
+            
+            jSONObject.put("requestDateStart", request.getRequestDateStart().toString());
+            jSONObject.put("requestDateEnd", request.getRequestDateEnd().toString());
+        
+        j.put("request", jSONObject);
+
+        return j.toString();
     }
 
     //save new approval request
-//    @RequestMapping(value = "/insert/{id}", method = RequestMethod.POST)
-//    @ApiOperation(value = "Create new Request Approval this month")
-//    public String createNewRequestApprovalThisMonth(@PathVariable("id") String userId) {
-//
-//        JSONObject jSONObject = new JSONObject();
-//        SimpleDateFormat formater = new SimpleDateFormat("yyyyMMddHHmm");
-//
-//        System.out.println("user id: " + userId);
-//
-//        Users cekUser = usersRepository.findUserById(userId);
-//        int roleUser = cekUser.getRoleId().getRoleId();
-//        System.out.println("user roleId: " + roleUser + " " + cekUser.getRoleId().getRoleName());
-//
-//        if (roleUser == 5) {
-//
-////        cek if exist request approval for this month
-//            int cekIfExistRequestApp = approvalRepository.cekIfExistApprovalThisMonth(userId);
-//            System.out.println("exist: " + cekIfExistRequestApp);
-//
-//            if (cekIfExistRequestApp == 1) {
-//                System.out.println("request bulan ini sudah dibuat");
-//
-//                Approval approval = approvalRepository.findApprovalByRequesterId(userId);
-//                String statusApprovalStr = approval.getApprovalStatusId().getApprovalStatusName();
-//                System.out.println("approval status: " + statusApprovalStr);
-//
-//                int statusApprovalId = approval.getApprovalStatusId().getApprovalStatusId();
-//                System.out.println("approval status: " + statusApprovalId + " " + approval.getApprovalStatusId().getApprovalStatusName());
-//
-//                if (statusApprovalId == 1 || statusApprovalId == 3 || statusApprovalId == 6) {
-//                    System.out.println("cannot create new request");
-//                    jSONObject.put("status", "false");
-//                    jSONObject.put("description", "unsuccessfull create new approval request");
-//                    return jSONObject.toString();
-//                }
-//
-//            }
-//        }
-//
-//        System.out.println("belum create request app");
-////        //save new request
-////        //generate requestId
-//        Date now = new Date();
-//        System.out.println("now: " + now);
-//        String strDate = formater.format(now);
-//        System.out.println("strDate: " + strDate);
-//        String requestId = userId + strDate;
-//        System.out.println("new request id: " + requestId);
-//        int cekRequestIdExist = requestRepository.cekIfExistRequestId(requestId);
-//        System.out.println("exist: " + cekRequestIdExist);
-//        if (cekRequestIdExist == 1) {
-//            do {
-//                now = new Date();
-//                strDate = formater.format(now);
-//                requestId = userId + strDate;
-//                cekRequestIdExist = requestRepository.cekIfExistRequestId(requestId);
-//            } while (cekRequestIdExist == 1);
-//        }
-//        System.out.println("request id bisa di simpan: " + requestId);
-//
-////        //get last date current month
-//        Calendar lastDateCal = Calendar.getInstance();
-//        Calendar firstDateCal = Calendar.getInstance();
-//        Calendar cal = Calendar.getInstance();
-//
-//        int lastDateInt = cal.getActualMaximum(Calendar.DATE);
-//        int firstDateInt = cal.getActualMinimum(Calendar.DATE);
-//
-//        System.out.println("first date: " + lastDateInt);
-//        System.out.println("last date: " + firstDateInt);
-//
-//        lastDateCal.set(Calendar.DAY_OF_MONTH, lastDateInt);
-//        lastDateCal.set(Calendar.HOUR_OF_DAY, 23);
-//        lastDateCal.set(Calendar.MINUTE, 59);
-//        lastDateCal.set(Calendar.SECOND, 59);
-//        lastDateCal.set(Calendar.MILLISECOND, 0);
-//
-//        firstDateCal.set(Calendar.DAY_OF_MONTH, firstDateInt);
-//        firstDateCal.set(Calendar.HOUR_OF_DAY, 0);
-//        firstDateCal.set(Calendar.MINUTE, 0);
-//        firstDateCal.set(Calendar.SECOND, 0);
-//        firstDateCal.set(Calendar.MILLISECOND, 1);
-//
-//        Date lastDate = lastDateCal.getTime();
-//        Date firstDate = firstDateCal.getTime();
-//
-//        System.out.println("fisrt date: " + firstDate);
-//        System.out.println("last date: " + lastDate);
-////
-//        Request request = new Request(requestId, now, firstDate, lastDate);
-////        requestRepository.save(request); //enable after modify condition
-//        System.out.println("request has been saved");
-////
-//        //id approval
-//        String approvalId = userId + strDate + userId;
-//        System.out.println("approval id: " + approvalId);
-//        int cekIfExistApprovalId = approvalRepository.cekIfExistApprovalId(approvalId);
-//        if (cekIfExistApprovalId == 1) {
-//            do {
-//                now = new Date();
-//                strDate = formater.format(now);
-//                approvalId = userId + strDate + "0000" + userId;
-//                cekIfExistApprovalId = approvalRepository.cekIfExistApprovalId(approvalId);
-//            } while (cekIfExistApprovalId == 1);
-//        }
-//
-//        System.out.println("approval id bisa di pakai " + approvalId);
-//
-//        final int APPROVAL_STATUS = 1;
-//        String remark = "Request for Approve";
-//
-//        String employeeBootcampId = bootcampDetailRepository.getEmployeeBootcampId(userId);
-//        System.out.println("user id: " + userId);
-//        System.out.println("employee bootcamp id: " + employeeBootcampId);
-//
-//        String approver = bootcampDetailRepository.getTrainerByBootcampId(employeeBootcampId);
-//        System.out.println("trainer id: " + approver);
-//
-//        Approval approval = new Approval(approvalId, now, now, remark, firstDate, lastDate,
-//                new Request(requestId), new ApprovalStatus(APPROVAL_STATUS), new Users(userId),
-//                new Users(approver));
-//        approvalRepository.save(approval);
-//        System.out.println("request approval has been saved");
-//
-//        jSONObject.put("status", "true");
-//        jSONObject.put("description", "successfull create new approval request");
-//        return jSONObject.toString();
-////        return "test";
-//    }
-
-    //save new approval request
-    @RequestMapping(value = "/insertnew/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/insertnew", method = RequestMethod.POST)
     @ApiOperation(value = "Create new Request Approval last month")
-    public String createNewRequestApprovalLastMonth(@PathVariable("id") String userId) {
+    public String createNewRequestApprovalLastMonth(@RequestBody Map<String, ?> input) {
+//    public String createNewRequestApprovalLastMonth(@PathVariable("id") String userId) {
+
+        String userId = (String) input.get("userId");
 
         JSONObject jSONObject = new JSONObject();
         SimpleDateFormat formater = new SimpleDateFormat("yyyyMMddHHmm");
@@ -311,9 +269,9 @@ public class ApprovalController {
 
 //                Approval approval = approvalRepository.findLastMonthApprovalByRequesterId(userId);
                 String approvalId = approvalRepository.findThisMonthApprovalIdByRequesterId(userId);
-                
+
                 Approval approval = approvalRepository.findByApprovalId(approvalId);
-                
+
                 String statusApprovalStr = approval.getApprovalStatusId().getApprovalStatusName();
                 System.out.println("approval status: " + statusApprovalStr);
 
@@ -333,13 +291,13 @@ public class ApprovalController {
         System.out.println("belum create request app");
 //        //save new request
 //        //generate requestId
-        Date sekarang = new Date(); 
+        Date sekarang = new Date();
 
         //now is for last month
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.MONTH, -1);
         Date lastMonth = cal.getTime();
-        
+
         System.out.println("now: " + lastMonth);
         String strDate = formater.format(lastMonth);
         System.out.println("strDate: " + strDate);
