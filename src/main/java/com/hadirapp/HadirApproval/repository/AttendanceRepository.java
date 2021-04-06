@@ -29,8 +29,11 @@ public interface AttendanceRepository extends JpaRepository<Attendance, String> 
     @Query(value = "SELECT att.* FROM approval a JOIN users u ON a.approval_requester_id = u.user_id JOIN attendance att ON att.user_id = u.user_id JOIN request r ON a.request_id = r.request_id WHERE r.request_id = ?1 AND approval_approver_id = ?2", nativeQuery = true)
     List<Attendance> findDetailApprovalByRequestID(@Param("rid") String reqId, @Param("id") String appId);
     
-    //list attendance by request id
-    @Query(value = "SELECT att.* FROM approval a JOIN users u ON a.approval_requester_id = u.user_id JOIN attendance att ON att.user_id = u.user_id JOIN request r ON a.request_id = r.request_id WHERE r.request_id = ?1", nativeQuery = true)
+    @Query(value="SELECT * FROM `attendance` WHERE attendance_date BETWEEN ?2 AND ?3 AND user_id = ?1 ORDER BY attendance_date DESC, attendance_time ASC",nativeQuery = true)
+    List<Attendance> findLastMonthAttendanceByUserId(@Param ("userId") String userId, @Param ("startDate") String startDate, @Param ("endDate") String endDate);
+
+//list attendance by request id
+    @Query(value = "SELECT att.* FROM approval a JOIN users u ON a.approval_requester_id = u.user_id JOIN attendance att ON att.user_id = u.user_id JOIN request r ON a.request_id = r.request_id WHERE r.request_id = ?1 AND att.attendance_date BETWEEN r.request_date_start AND r.request_date_end ORDER BY att.attendance_date DESC, att.attendance_time ASC", nativeQuery = true)
     List<Attendance> findDetailApprovalByRequestIDnew(@Param("rid") String reqId);
     
 

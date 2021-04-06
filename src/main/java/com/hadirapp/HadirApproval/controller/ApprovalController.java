@@ -59,7 +59,7 @@ public class ApprovalController {
 
     //read all approval by requester id
     @GetMapping("/getapproval/{id}")
-    @ApiOperation(value = "${ApprovalController.getapprovalbyrequester}")
+    @ApiOperation(value = "Get List Approval by UserId")
     public String getApprovalByRequester(@PathVariable String id) {
 
         List<Approval> approval = approvalRepository.findByID(id);
@@ -178,7 +178,7 @@ public class ApprovalController {
 
         for (Approval app : attendances) {
             JSONObject jSONObject = new JSONObject();
-            
+
             SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd");
             String reqDate = formater.format(app.getRequestId().getRequestDate());
             System.out.println("req date: " + reqDate);
@@ -206,7 +206,7 @@ public class ApprovalController {
 
         return j.toString();
     }
-    
+
     //read detail approval
     @GetMapping("/getrequestbyrequestid/{id}")
     @ApiOperation(value = "List Approval by Request ID")
@@ -223,20 +223,168 @@ public class ApprovalController {
         JSONArray jSONArray = new JSONArray();
         JSONObject j = new JSONObject();
 
-        
-            JSONObject jSONObject = new JSONObject();
-            
-            SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd");
-            String reqDate = formater.format(request.getRequestDate());
-            System.out.println("req date: " + reqDate);
-            jSONObject.put("requestId", request.getRequestId());
-            // modify date format for request date
-            jSONObject.put("requestDate", reqDate);
-            
-            jSONObject.put("requestDateStart", request.getRequestDateStart().toString());
-            jSONObject.put("requestDateEnd", request.getRequestDateEnd().toString());
-        
+        JSONObject jSONObject = new JSONObject();
+
+        SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd");
+        String reqDate = formater.format(request.getRequestDate());
+        System.out.println("req date: " + reqDate);
+        jSONObject.put("requestId", request.getRequestId());
+        // modify date format for request date
+        jSONObject.put("requestDate", reqDate);
+
+        jSONObject.put("requestDateStart", request.getRequestDateStart().toString());
+        jSONObject.put("requestDateEnd", request.getRequestDateEnd().toString());
+
         j.put("request", jSONObject);
+
+        return j.toString();
+    }
+
+    @RequestMapping(value = "/checkattendance/{userId}", method = RequestMethod.GET)
+    @ApiOperation(value = "Cek Status Approval sebelum Create New")
+    public String cekStatusApproval(@PathVariable String userId) {
+
+        JSONObject jSONObject = new JSONObject();
+        int cekIfExistRequest = approvalRepository.cekIfExistApprovalThisMonth(userId);
+        if (cekIfExistRequest == 1) {
+            System.out.println("request untuk bulan lalu sudah dibuat");
+
+            String approvalId = approvalRepository.findThisMonthApprovalIdByRequesterId(userId);
+
+            Approval approval = approvalRepository.findByApprovalId(approvalId);
+
+            String statusApprovalStr = approval.getApprovalStatusId().getApprovalStatusName();
+            System.out.println("approval status: " + statusApprovalStr);
+
+            int statusApprovalId = approval.getApprovalStatusId().getApprovalStatusId();
+            System.out.println("approval status: " + statusApprovalId + " " + approval.getApprovalStatusId().getApprovalStatusName());
+
+            if (statusApprovalId == 1 || statusApprovalId == 3 || statusApprovalId == 6) {
+                System.out.println("cannot create new request");
+                jSONObject.put("status", "false");
+                jSONObject.put("approvalDate", approval.getApprovalDate().toString());
+                jSONObject.put("description", "unsuccessfull create new approval request");
+                jSONObject.put("startDate", approval.getApprovalDateStart().toString());
+                jSONObject.put("endDate", approval.getApprovalDateEnd().toString());
+                return jSONObject.toString();
+            }
+        }
+        
+        SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MONTH, -1);
+        Date lastMonth = cal.getTime();
+        System.out.println("last month: " + lastMonth);
+
+        Calendar lastDateCal = Calendar.getInstance();
+        lastDateCal.add(Calendar.MONTH, -1);
+
+        Calendar firstDateCal = Calendar.getInstance();
+        firstDateCal.add(Calendar.MONTH, -1);
+
+        int lastDateInt = cal.getActualMaximum(Calendar.DATE);
+        int firstDateInt = cal.getActualMinimum(Calendar.DATE);
+
+        System.out.println("first date: " + firstDateInt);
+        System.out.println("last date: " + lastDateInt);
+
+        lastDateCal.set(Calendar.DAY_OF_MONTH, lastDateInt);
+        lastDateCal.set(Calendar.HOUR_OF_DAY, 23);
+        lastDateCal.set(Calendar.MINUTE, 59);
+        lastDateCal.set(Calendar.SECOND, 59);
+        lastDateCal.set(Calendar.MILLISECOND, 0);
+
+        firstDateCal.set(Calendar.DAY_OF_MONTH, firstDateInt);
+        firstDateCal.set(Calendar.HOUR_OF_DAY, 0);
+        firstDateCal.set(Calendar.MINUTE, 0);
+        firstDateCal.set(Calendar.SECOND, 0);
+        firstDateCal.set(Calendar.MILLISECOND, 1);
+
+        Date lastDate = lastDateCal.getTime();
+        Date firstDate = firstDateCal.getTime();
+
+        System.out.println("fisrt date: " + firstDate);
+        System.out.println("last date: " + lastDate);
+
+        String startDate = formater.format(firstDate);
+        String endDate = formater.format(lastDate);
+        
+        jSONObject.put("status", "true");
+        jSONObject.put("approvalDate", "");
+        jSONObject.put("description", "you can create new approval request");
+        jSONObject.put("startDate", startDate);
+        jSONObject.put("endDate", endDate);
+        return jSONObject.toString();
+    }
+
+    @RequestMapping(value = "/getAttendancebyLastMonth/{userId}", method = RequestMethod.GET)
+    @ApiOperation(value = "Cek Attendance sebelum Create New")
+    public String cekAttendance(@PathVariable String userId) {
+
+        SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MONTH, -1);
+        Date lastMonth = cal.getTime();
+        System.out.println("last month: " + lastMonth);
+
+        Calendar lastDateCal = Calendar.getInstance();
+        lastDateCal.add(Calendar.MONTH, -1);
+
+        Calendar firstDateCal = Calendar.getInstance();
+        firstDateCal.add(Calendar.MONTH, -1);
+
+        int lastDateInt = cal.getActualMaximum(Calendar.DATE);
+        int firstDateInt = cal.getActualMinimum(Calendar.DATE);
+
+        System.out.println("first date: " + firstDateInt);
+        System.out.println("last date: " + lastDateInt);
+
+        lastDateCal.set(Calendar.DAY_OF_MONTH, lastDateInt);
+        lastDateCal.set(Calendar.HOUR_OF_DAY, 23);
+        lastDateCal.set(Calendar.MINUTE, 59);
+        lastDateCal.set(Calendar.SECOND, 59);
+        lastDateCal.set(Calendar.MILLISECOND, 0);
+
+        firstDateCal.set(Calendar.DAY_OF_MONTH, firstDateInt);
+        firstDateCal.set(Calendar.HOUR_OF_DAY, 0);
+        firstDateCal.set(Calendar.MINUTE, 0);
+        firstDateCal.set(Calendar.SECOND, 0);
+        firstDateCal.set(Calendar.MILLISECOND, 1);
+
+        Date lastDate = lastDateCal.getTime();
+        Date firstDate = firstDateCal.getTime();
+
+        System.out.println("fisrt date: " + firstDate);
+        System.out.println("last date: " + lastDate);
+
+        String startDate = formater.format(firstDate);
+        String endDate = formater.format(lastDate);
+        Iterable<Attendance> attendances = attendanceRepository.findLastMonthAttendanceByUserId(userId, startDate, endDate);
+        System.out.println("attendances: " + attendances);
+        if (attendances == null) {
+            System.out.println("approval status not found");
+        }
+
+        JSONArray jSONArray = new JSONArray();
+        JSONObject j = new JSONObject();
+
+        for (Attendance app : attendances) {
+            JSONObject jSONObject = new JSONObject();
+            jSONObject.put("attendanceId", app.getAttendanceId());
+            jSONObject.put("attendanceDate", app.getAttendanceDate().toString());
+            jSONObject.put("attendanceTime", app.getAttendanceTime().toString());
+            jSONObject.put("attendanceRemark", app.getAttendanceRemark());
+            jSONObject.put("attendanceAttachment", app.getAttendanceAttachment());
+            jSONObject.put("attendanceType", app.getAttendanceType());
+            jSONObject.put("attendanceLogitude", app.getAttendanceLogitude());
+            jSONObject.put("attendanceLatitude", app.getAttendanceLatitude());
+            jSONObject.put("userId", app.getUserId().getUserId());
+            jSONObject.put("userName", app.getUserId().getUserFullname());
+            jSONObject.put("attendanceStatusId", app.getAttendanceStatusId().getAttendanceStatusId());
+            jSONObject.put("attendanceStatusName", app.getAttendanceStatusId().getAttendanceStatusName());
+            jSONArray.add(jSONObject);
+        }
+        j.put("attendanceList", jSONArray);
 
         return j.toString();
     }
