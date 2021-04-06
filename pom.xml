@@ -107,10 +107,17 @@
             <artifactId>DynamicJasper-core-fonts</artifactId>
             <version>2.0</version>
         </dependency>
-       
+        
+        <!-- Disable the embedded Tomcat in Spring Boot -->
+<!--        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>-->
     </dependencies>
 
     <build>
+        <finalName>hadirattendance</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

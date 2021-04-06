@@ -9,6 +9,7 @@ import com.hadirapp.HadirApproval.entity.Attendance;
 import com.hadirapp.HadirApproval.entity.AttendanceStatus;
 import com.hadirapp.HadirApproval.entity.Users;
 import com.hadirapp.HadirApproval.repository.AttendanceRepository;
+import com.hadirapp.HadirApproval.repository.UsersRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.text.ParseException;
@@ -42,6 +43,9 @@ public class AttendanceController {
 
     @Autowired
     AttendanceRepository attendanceRepository;
+    
+    @Autowired
+    private UsersRepository usersRepository;
 
     @GetMapping("/getreport/{id}")
     @ApiOperation(value = "Get attendance report for selected employee")
@@ -247,7 +251,7 @@ public class AttendanceController {
 
         String attendanceRemark = (String) input.get("attendanceRemark");
         String attendanceAttachment = (String) input.get("attendanceAttachment");
-        Integer attendanceStatusId = (int) input.get("attendanceStatusId");
+        Integer attendanceStatusId = (Integer) input.get("attendanceStatusId");
         String attendanceLongitude = (String) input.get("attendanceLongitude");
         String attendanceLatitude = (String) input.get("attendanceLatitude");
         JSONObject jSONObject = new JSONObject();
@@ -329,7 +333,7 @@ public class AttendanceController {
     public String checkOut(@RequestHeader("bearer") String header, @RequestBody Map<String, ?> input) throws ParseException {
         String attendanceRemark = (String) input.get("attendanceRemark");
         String attendanceAttachment = (String) input.get("attendanceAttachment");
-        Integer attendanceStatusId = (int) input.get("attendanceStatusId");
+        Integer attendanceStatusId = (Integer) input.get("attendanceStatusId");
         String attendanceLongitude = (String) input.get("attendanceLongitude");
         String attendanceLatitude = (String) input.get("attendanceLatitude");
         JSONObject jSONObject = new JSONObject();
@@ -424,7 +428,7 @@ public class AttendanceController {
     public String leave(@RequestHeader("bearer") String header, @RequestBody Map<String, ?> input) throws ParseException {
         String attendanceRemark = (String) input.get("attendanceRemark");
         String attendanceAttachment = (String) input.get("attendanceAttachment");
-        Integer attendanceStatusId = (int) input.get("attendanceStatusId");
+        Integer attendanceStatusId = (Integer) input.get("attendanceStatusId");
         String attendanceLongitude = (String) input.get("attendanceLongitude");
         String attendanceLatitude = (String) input.get("attendanceLatitude");
         String startDate = (String) input.get("startDate");
@@ -525,6 +529,60 @@ public class AttendanceController {
             return jSONObject.toJSONString();
         }
 
+    }
+    
+    @GetMapping("/gettenattendance/{id}")
+    @ApiOperation(value = "Get 10 attendance")
+    public String getLastTenAttendanceByTrainer(@PathVariable String trainerId) {
+        
+        String bootcampId = usersRepository.findBootcampidByUserId(trainerId);
+        
+        List<Attendance> attendance = attendanceRepository.findLastAttendanceByBootcampId(bootcampId);
+        JSONArray jsonArray = new JSONArray();
+        JSONObject jsonObject2 = new JSONObject();
+
+        for (Attendance attendances : attendance) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("id", attendances.getAttendanceId());
+            jsonObject.put("date", attendances.getAttendanceDate().toString());
+            jsonObject.put("time", attendances.getAttendanceTime().toString());
+            jsonObject.put("remark", attendances.getAttendanceRemark());
+            jsonObject.put("type", attendances.getAttendanceType());
+            jsonObject.put("status", attendances.getAttendanceStatusId().getAttendanceStatusName());
+            jsonObject.put("employee", attendances.getUserId().getUserFullname());
+            jsonArray.add(jsonObject);
+        }
+
+        jsonObject2.put("attendance_list", jsonArray);
+
+        return jsonObject2.toString();
+    }
+    
+    @GetMapping("/gettenleave/{id}")
+    @ApiOperation(value = "Get 10 attendance")
+    public String getLastTenLeaveByTrainer(@PathVariable String trainerId) {
+        
+        String bootcampId = usersRepository.findBootcampidByUserId(trainerId);
+        
+        List<Attendance> attendance = attendanceRepository.findLastLeaveByBootcampId(bootcampId);
+        JSONArray jsonArray = new JSONArray();
+        JSONObject jsonObject2 = new JSONObject();
+
+        for (Attendance attendances : attendance) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("id", attendances.getAttendanceId());
+            jsonObject.put("date", attendances.getAttendanceDate().toString());
+            jsonObject.put("time", attendances.getAttendanceTime().toString());
+            jsonObject.put("remark", attendances.getAttendanceRemark());
+            jsonObject.put("type", attendances.getAttendanceType());
+            jsonObject.put("status", attendances.getAttendanceStatusId().getAttendanceStatusName());
+            jsonObject.put("employee", attendances.getUserId().getUserFullname());
+            jsonArray.add(jsonObject);
+        }
+
+        jsonObject2.put("attendance_list", jsonArray);
+
+        return jsonObject2.toString();
     }
 
 }
