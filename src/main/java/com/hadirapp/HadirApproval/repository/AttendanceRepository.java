@@ -49,4 +49,8 @@ public interface AttendanceRepository extends JpaRepository<Attendance, String>{
     
     @Query(value = "SELECT IF(EXISTS(SELECT * FROM attendance where attendance.attendance_date = :date and user_id = :userId and attendance_type = 'start'),1,0)", nativeQuery = true)
     public int findIfExistAttendance(@Param("date") String date, @Param("userId") String userId);
+    
+    // For reports
+    @Query(value = "select u.user_fullname, u.user_id, d.division_name, a.* from users u join attendance a on u.user_id = a.user_id join division d on d.division_id = u.division_id where a.user_id = ?1", nativeQuery = true)
+    Iterable<Attendance> atteanceReport(@Param("id") String id);
 }

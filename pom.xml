@@ -11,11 +11,14 @@
     <groupId>com.hadirapp</groupId>
     <artifactId>HadirApproval</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <name>HadirApproval</name>
     <description>the improved engine</description>
     <properties>
         <java.version>1.8</java.version>
+        
+        <jasperreports.version>6.13.0</jasperreports.version>
+        <dynamicjasper.version>5.3.1</dynamicjasper.version>
     </properties>
     <dependencies>
         <dependency>
@@ -74,6 +77,35 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
             <type>jar</type>
+            <version>5.3.5</version>
+        </dependency>
+        
+        <!-- http://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports -->
+        <dependency>
+            <groupId>net.sf.jasperreports</groupId>
+            <artifactId>jasperreports</artifactId>
+            <version>${jasperreports.version}</version>
+        </dependency>
+
+        <!-- http://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports-fonts -->
+        <dependency>
+            <groupId>net.sf.jasperreports</groupId>
+            <artifactId>jasperreports-fonts</artifactId>
+            <version>${jasperreports.version}</version>
+        </dependency>
+
+        <!-- http://mvnrepository.com/artifact/ar.com.fdvs/DynamicJasper -->
+        <dependency>
+            <groupId>ar.com.fdvs</groupId>
+            <artifactId>DynamicJasper</artifactId>
+            <version>${dynamicjasper.version}</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/ar.com.fdvs/DynamicJasper-core-fonts -->
+        <dependency>
+            <groupId>ar.com.fdvs</groupId>
+            <artifactId>DynamicJasper-core-fonts</artifactId>
+            <version>2.0</version>
         </dependency>
        
     </dependencies>

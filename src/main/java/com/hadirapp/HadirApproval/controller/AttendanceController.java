@@ -43,6 +43,31 @@ public class AttendanceController {
     @Autowired
     AttendanceRepository attendanceRepository;
 
+    @GetMapping("/getreport/{id}")
+    @ApiOperation(value = "Get attendance report for selected employee")
+    public String getReport(@PathVariable String id) {
+        Iterable<Attendance> attendance = attendanceRepository.atteanceReport(id);
+        JSONArray jsonArray = new JSONArray();
+        JSONObject jsonObject2 = new JSONObject();
+
+        for (Attendance attendances : attendance) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("userFullname", attendances.getUserId().getUserFullname());
+            jsonObject.put("divisionName", attendances.getUserId().getDivisionId().getDivisionName());
+            jsonObject.put("userId",attendances.getUserId().getUserId());
+            jsonObject.put("attendanceDate",attendances.getAttendanceDate().toString());
+            jsonObject.put("attendanceTime",attendances.getAttendanceTime().toString());
+            jsonObject.put("attendanceStatus", attendances.getAttendanceStatusId().getAttendanceStatusName());
+            jsonObject.put("attendanceRemark", attendances.getAttendanceRemark());
+            jsonArray.add(jsonObject);
+        }
+
+        jsonObject2.put("attendance_list", jsonArray);
+
+        return jsonObject2.toString();
+
+    }
+
     @GetMapping("/getattendance")
     @ApiOperation(value = "Get all attendance")
     public String getAttendance() {
