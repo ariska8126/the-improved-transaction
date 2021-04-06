@@ -72,6 +72,34 @@ public class ApprovalController {
 
         for (Approval app : approval) {
             JSONObject jSONObject = new JSONObject();
+            
+            String employeeId = null; 
+            String employeeName = null;
+            
+            String requester = app.getApprovalRequesterId().getUserId();
+            Users user = usersRepository.findUserById(requester);
+            int roleId = user.getRoleId().getRoleId();
+            System.out.println("role: "+roleId);
+            if (roleId == 5) {
+                employeeId = app.getApprovalRequesterId().getUserId();
+                System.out.println("employee id: "+employeeId);
+                employeeName = app.getApprovalRequesterId().getUserFullname();
+                System.out.println("employee name: "+employeeName);
+                
+            } else if(roleId == 4){
+                System.out.println("requester adalah trainer");
+                String trainerId = app.getApprovalRequesterId().getUserId();
+                System.out.println("trainer id "+trainerId);
+                String requestId = app.getRequestId().getRequestId();
+                System.out.println("request id: "+requestId);
+                Approval app2 = approvalRepository.findByRequestAndTrainerId(requestId, trainerId);
+                employeeId = app2.getApprovalRequesterId().getUserId();
+                System.out.println("employee id: "+employeeId);
+                employeeName = app2.getApprovalRequesterId().getUserFullname();
+                System.out.println("employee name: "+employeeName);
+            }
+            jSONObject.put("employeeId", employeeId);
+            jSONObject.put("employeeName", employeeName);
 
             SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd");
             String reqDate = formater.format(app.getRequestId().getRequestDate());
@@ -269,7 +297,7 @@ public class ApprovalController {
                 return jSONObject.toString();
             }
         }
-        
+
         SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd");
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.MONTH, -1);
@@ -308,7 +336,7 @@ public class ApprovalController {
 
         String startDate = formater.format(firstDate);
         String endDate = formater.format(lastDate);
-        
+
         jSONObject.put("status", "true");
         jSONObject.put("approvalDate", "");
         jSONObject.put("description", "you can create new approval request");
@@ -514,7 +542,7 @@ public class ApprovalController {
         System.out.println("approval id bisa di pakai " + approvalId);
 
         final int APPROVAL_STATUS = 1;
-        String remark = "Request for Approve";
+        String remark = "";
 
         String employeeBootcampId = bootcampDetailRepository.getEmployeeBootcampId(userId);
         System.out.println("user id: " + userId);
@@ -543,6 +571,10 @@ public class ApprovalController {
         JSONObject jsonObject = new JSONObject();
         System.out.println("id: " + id);
         Approval app = approvalRepository.findByApprovalId(id);
+        String requestId = app.getRequestId().getRequestId();
+        System.out.println("request id: " + requestId);
+
+        Date now = new Date();
 
         if (app == null) {
             jsonObject.put("status", "false");
@@ -550,23 +582,59 @@ public class ApprovalController {
 
             return jsonObject.toString();
         }
+//        String approvalStatusIdStr = null;
+        int approvalStatusId = 0;
 
         String approvalRemark = (String) input.get("approvalRemark");
-        String approvalStatusIdStr = (String) input.get("approvalStatusId");
+        String approvalStatus = (String) input.get("approvalStatusId");
+        String approvalUserId = (String) input.get("userId");
+
         System.out.println("remark: " + approvalRemark);
+        System.out.println("status: " + approvalStatus);
+        System.out.println("userId: " + approvalUserId);
 
-        int approvalStatusId = Integer.parseInt(approvalStatusIdStr);
-        System.out.println("app id: " + approvalStatusId);
+        Users user = usersRepository.findUserById(approvalUserId);
+        int userRole = user.getRoleId().getRoleId();
+        System.out.println("role user: " + userRole);
 
-        Date now = new Date();
+        if ("reject".equals(approvalStatus) && userRole == 4) {
+            approvalStatusId = 2;
+            System.out.println("reject by trainer");
+
+        } else if ("reject".equals(approvalStatus) && userRole == 2) {
+            approvalStatusId = 5;
+            System.out.println("reject by manager");
+
+        } else if ("approve".equals(approvalStatus) && userRole == 2) {
+            approvalStatusId = 6;
+            System.out.println("approve by manager");
+
+        } else if ("approve".equals(approvalStatus) && userRole == 4) {
+            approvalStatusId = 3;
+            System.out.println("approve by trainer");
+
+        }
+
+        System.out.println("approval status id: " + approvalStatusId);
+
         app.setApprovalRemark(approvalRemark);
         app.setApprovalStatusId(new ApprovalStatus(approvalStatusId));
+        System.out.println("approval status id "+approvalStatusId);
         app.setApprovalDateUpdate(now);
         app.setApprovalId(id);
         approvalRepository.save(app);
+        System.out.println("save update on request trainer");
 
+//        System.out.println("request id: " + requestId);
+//        Approval app2 = approvalRepository.findByRequestAndStatus(requestId);
+//        app2.setApprovalRemark(approvalRemark);
+//        app2.setApprovalStatusId(new ApprovalStatus(approvalStatusId));
+//        app2.setApprovalDateUpdate(now);
+//        approvalRepository.save(app2);
+//        System.out.println("save on request employee");
         String message = null;
         switch (approvalStatusId) {
+
             //email reject to employee
             case 2:
                 message = "Reject by Trainer";
@@ -579,13 +647,34 @@ public class ApprovalController {
                 message = "Approve by Trainer";
                 createRequestApprovalForEmployee(app);
                 break;
-            //mail to employee
+
+            //mail to employee    
             case 5:
                 message = "Reject by Manager";
+                System.out.println("request id: " + requestId);
+
+                Approval app3 = approvalRepository.findByRequestAndStatus(requestId);
+                System.out.println("approval id: " + app3.getApprovalId());
+                
+                app3.setApprovalRemark(approvalRemark);
+                System.out.println("approval remark: " + app3.getApprovalRemark());
+                
+                app3.setApprovalStatusId(new ApprovalStatus(approvalStatusId));
+                System.out.println("approval status: "+approvalStatusId);
+                
+                app3.setApprovalDateUpdate(now);
+                System.out.println("date update: "+now);
+                
+                approvalRepository.save(app3);
+                System.out.println("save on request employee");
+
                 break;
             //mail to employee
             case 6:
                 message = "Approve by Manager";
+                //update by manager
+//                String requestId = app.getRequestId().getRequestId();
+
                 break;
             default:
                 break;
@@ -629,6 +718,7 @@ public class ApprovalController {
                 app.getApprovalDateStart(), app.getApprovalDateEnd(),
                 app.getRequestId(), new ApprovalStatus(APPROVAL_STATUS), new Users(approvalRequesterId),
                 new Users(managerId));
+
         approvalRepository.save(approval);
         System.out.println("request approval has been saved");
     }

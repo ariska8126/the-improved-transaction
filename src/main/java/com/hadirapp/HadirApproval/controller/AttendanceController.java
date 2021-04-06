@@ -506,7 +506,7 @@ public class AttendanceController {
 
     }
     
-    @GetMapping("/gettenattendance/{id}")
+    @GetMapping("/gettenattendance/{trainerId}")
     @ApiOperation(value = "Get 10 attendance")
     public String getLastTenAttendanceByTrainer(@PathVariable String trainerId) {
         
