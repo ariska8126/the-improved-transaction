@@ -533,7 +533,7 @@ public class AttendanceController {
         return jsonObject2.toString();
     }
     
-    @GetMapping("/gettenleave/{id}")
+    @GetMapping("/gettenleave/{trainerId}")
     @ApiOperation(value = "Get 10 attendance")
     public String getLastTenLeaveByTrainer(@PathVariable String trainerId) {
         
