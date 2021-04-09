@@ -7,6 +7,7 @@ package com.hadirapp.HadirApproval.repository;
 
 import com.hadirapp.HadirApproval.entity.Approval;
 import com.hadirapp.HadirApproval.entity.Attendance;
+import com.hadirapp.HadirApproval.entity.Bootcamp;
 import java.util.List;
 import com.hadirapp.HadirApproval.entity.Users;
 import java.util.Optional;
@@ -52,6 +53,9 @@ public interface AttendanceRepository extends JpaRepository<Attendance, String> 
 
     @Query(value = "SELECT count(*) FROM attendance where attendance.attendance_date = :date and user_id = :userId and attendance_type = 'leave'", nativeQuery = true)
     public int validateLeave(@Param("date") String date, @Param("userId") String userId);
+    
+    @Query(value = "select * from attendance where user_id = :userId and attendance_type = 'leave'", nativeQuery = true)
+    Iterable<Attendance> getAllLeaveByUser(@Param("userId") String userId);
 
     @Query(value = "SELECT * FROM attendance where attendance.attendance_date = :date and user_id = :userId and attendance_type in ('start','end')", nativeQuery = true)
     Iterable<Attendance> checkDuration(@Param("date") String date, @Param("userId") String userId);
@@ -119,4 +123,38 @@ public interface AttendanceRepository extends JpaRepository<Attendance, String> 
             + "GROUP BY WEEK(attendance_date)", nativeQuery = true)
     public List<Attendance> getWeeklyAttendance(@Param("bootcampId") String id);
 
+    // Attendance list by bootcamp
+    @Query(value = "SELECT u.user_fullname, a.* from users u join attendance a\n"
+            + "on u.user_id = a.user_id join bootcamp_detail b \n"
+            + "on b.user_id = u.user_id WHERE a.attendance_type in ('start','end')\n"
+            + "and a.attendance_date = curdate()\n"
+            + "and b.bootcamp_id = :bootcampId", nativeQuery = true)
+    Iterable<Attendance> getTodayAttendanceByBootcamp(@Param("bootcampId") String id);
+
+    // N/A List by Bootcamp
+    @Query(value = "SELECT users.* from users where users.role_id = 5 \n"
+            + "and user_id not in (SELECT a.user_id from attendance a \n"
+            + "join users u on a.user_id = u.user_id \n"
+            + "join bootcamp_detail b on u.user_id = b.user_id WHERE a.attendance_date = curdate()\n"
+            + "and b.bootcamp_id = :bootcampId)", nativeQuery = true)
+    Iterable<Attendance> getTodayNotPresentByBootcamp(@Param("bootcampId") String id);
+
+    // Leave list by Bootcamp
+    @Query(value = "SELECT u.user_fullname, a.* from users u join attendance a\n"
+            + "on u.user_id = a.user_id join bootcamp_detail b \n"
+            + "on b.user_id = u.user_id WHERE a.attendance_type in ('leave')\n"
+            + "and a.attendance_date >= curdate()\n"
+            + "and b.bootcamp_id = :bootcampId", nativeQuery = true)
+    Iterable<Attendance> getLeaveByBootcampUser(@Param("bootcampId") String id);
+
+    // Get Attendace bu trainner
+    @Query(value = "SELECT b.* FROM bootcamp b JOIN bootcamp_detail bd ON b.bootcamp_id = bd.bootcamp_id WHERE user_id = ?1", nativeQuery = true)
+
+    public List<Bootcamp> getBootcamp(@Param("id") String id);
+
+    // Get Bootcamp and Trainner
+    @Query(value = "select attendance.* from attendance join users on attendance.user_id = users.user_id join bootcamp_detail on bootcamp_detail.user_id = users.user_id where bootcamp_detail.bootcamp_id in (:bootcampId) ORDER by attendance.attendance_date DESC, attendance_time ASC", nativeQuery = true)
+    Iterable<Attendance> getAttendanceByBootcampTrainer(@Param("bootcampId") String bootcampId);
+
+    // Get 
 }

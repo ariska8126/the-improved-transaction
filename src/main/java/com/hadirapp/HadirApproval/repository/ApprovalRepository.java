@@ -64,7 +64,15 @@ public interface ApprovalRepository extends JpaRepository<Approval, String> {
     public String findTrainerIdByManager(@Param("reqId") String reqId, @Param("appId") String appId);
     
     //list approval by request id 
-    @Query(value = "SELECT a.* FROM approval a JOIN request r ON a.request_id = r.request_id WHERE r.request_id = ?1", nativeQuery = true)
+    @Query(value = "SELECT a.* FROM approval a JOIN request r ON a.request_id = r.request_id WHERE r.request_id = ?1 ORDER BY approval_date ASC ", nativeQuery = true)
     List<Approval> findListApprovalByRequestID(@Param("rid") String reqId);
+    
+    //select approval by request id & status = approve by trainer
+    @Query(value="SELECT a.* FROM `approval` a JOIN approval_status ap ON a.approval_status_id = ap.approval_status_id WHERE ap.approval_status_id = '3' AND a.request_id = ?1", nativeQuery = true)
+    public Approval findByRequestAndStatus(@Param ("id") String requestId);
+    
+    //select approval by request id and trainer id = x
+    @Query(value="SELECT a.* FROM `approval` a JOIN approval_status ap ON a.approval_status_id = ap.approval_status_id WHERE a.approval_approver_id = ?2 AND a.request_id = ?1", nativeQuery = true)
+    public Approval findByRequestAndTrainerId(@Param ("id") String requestId,@Param ("trainerid") String trainerId);
 
 }
