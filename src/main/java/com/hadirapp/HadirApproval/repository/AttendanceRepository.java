@@ -156,5 +156,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance, String> 
     @Query(value = "select attendance.* from attendance join users on attendance.user_id = users.user_id join bootcamp_detail on bootcamp_detail.user_id = users.user_id where bootcamp_detail.bootcamp_id in (:bootcampId) ORDER by attendance.attendance_date DESC, attendance_time ASC", nativeQuery = true)
     Iterable<Attendance> getAttendanceByBootcampTrainer(@Param("bootcampId") String bootcampId);
 
-    // Get 
+    // Get Attendance by Id
+    @Query(value="select * from attendance where attendance_id = ?!")
+    public Attendance findByAttendanceId(@Param ("id") String id);
 }

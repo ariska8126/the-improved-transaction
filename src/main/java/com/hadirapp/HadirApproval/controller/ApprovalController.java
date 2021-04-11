@@ -25,8 +25,10 @@ import java.util.Map;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -75,9 +77,8 @@ public class ApprovalController {
             System.out.println("user email: " + users.getUserEmail());
             int roleIda = users.getRoleId().getRoleId();
             System.out.println("roleId: " + roleIda);
-            
+
 //            String requester = users.getUserId();
-            
             if (roleIda == 2 || roleIda == 4 || roleIda == 5) {
                 System.out.println("you're authorized to access this operation");
 
@@ -852,13 +853,6 @@ public class ApprovalController {
                 approvalRepository.save(app);
                 System.out.println("save update on request trainer");
 
-//        System.out.println("request id: " + requestId);
-//        Approval app2 = approvalRepository.findByRequestAndStatus(requestId);
-//        app2.setApprovalRemark(approvalRemark);
-//        app2.setApprovalStatusId(new ApprovalStatus(approvalStatusId));
-//        app2.setApprovalDateUpdate(now);
-//        approvalRepository.save(app2);
-//        System.out.println("save on request employee");
                 String message = null;
                 switch (approvalStatusId) {
 
@@ -929,6 +923,111 @@ public class ApprovalController {
         }
     }
 
+    @PutMapping("/updateAttendance/{id}")
+    @ApiOperation(value = "Update Attendance by attendance ID")
+    public String updateDetailApprovalByAttendanceId(@RequestHeader("bearer") String header,
+            @PathVariable String id, @RequestBody Attendance attendance) {
+//            @PathVariable String id, @RequestBody Map<String, ?> input) {
+
+        System.out.println("attendance id: " + id);
+
+        JSONArray jsonArray = new JSONArray();
+        JSONObject jsonObject2 = new JSONObject();
+        JSONObject jSONObject = new JSONObject();
+
+        int tokenExist = approvalRepository.findIfExistTokenForApproval(header);
+        if (tokenExist == 1) {
+
+            Users users = usersRepository.findUserByToken(header);
+            System.out.println("user email: " + users.getUserEmail());
+            int roleIda = users.getRoleId().getRoleId();
+            System.out.println("roleId: " + roleIda);
+            if (roleIda == 5) {
+                System.out.println("you're authorized to access this operation");
+                
+//                String approvalRemark = (String) input.get("approvalRemark");
+//                String approvalStatus = (String) input.get("approvalStatusId");
+//                String approvalUserId = (String) input.get("userId");
+
+//                Attendance attendances = attendanceRepository.findByAttendanceId(id);
+                attendance.setAttendanceId(id);
+                attendanceRepository.save(attendance);
+                
+//                System.out.println("attendances: " + attendances);
+//                if (attendances == null) {
+//                    System.out.println("attendance not found");
+//                }
+
+                System.out.println("save update success");
+                jSONObject.put("status", "true");
+                jSONObject.put("description", "update successfully");
+
+                return jSONObject.toJSONString();
+            } else {
+                System.out.println("access denied");
+                jSONObject.put("status", "false");
+                jSONObject.put("description", "you don't have authorization to access");
+
+                return jSONObject.toJSONString();
+            }
+
+        } else {
+            System.out.println("===== Wrong/Expire Token =====");
+            jsonObject2.put("status", "false");
+            jsonObject2.put("description", "you don't have authorization to access");
+
+            return jsonObject2.toJSONString();
+        }
+//        return "test";
+    }
+
+    @DeleteMapping("/deleteattendance/{id}")
+    @ApiOperation(value = "delete Attendance by attendance ID")
+    public String deleteDetailApprovalByAttendanceId(@RequestHeader("bearer") String header,
+            @PathVariable String id) {
+//            @PathVariable String id, @RequestBody Map<String, ?> input) {
+
+        System.out.println("attendance id: " + id);
+
+        JSONArray jsonArray = new JSONArray();
+        JSONObject jsonObject2 = new JSONObject();
+        JSONObject jSONObject = new JSONObject();
+
+        int tokenExist = approvalRepository.findIfExistTokenForApproval(header);
+        if (tokenExist == 1) {
+
+            Users users = usersRepository.findUserByToken(header);
+            System.out.println("user email: " + users.getUserEmail());
+            int roleIda = users.getRoleId().getRoleId();
+            System.out.println("roleId: " + roleIda);
+            if (roleIda == 5) {
+                System.out.println("you're authorized to access this operation");
+                
+                attendanceRepository.deleteById(id);
+
+                System.out.println("delete success");
+                jSONObject.put("status", "true");
+                jSONObject.put("description", "delete successfully");
+
+                return jSONObject.toJSONString();
+            } else {
+                System.out.println("access denied");
+                jSONObject.put("status", "false");
+                jSONObject.put("description", "you don't have authorization to access");
+
+                return jSONObject.toJSONString();
+            }
+
+        } else {
+            System.out.println("===== Wrong/Expire Token =====");
+            jsonObject2.put("status", "false");
+            jsonObject2.put("description", "you don't have authorization to access");
+
+            return jsonObject2.toJSONString();
+        }
+//        return "test";
+    }
+    
     private void createRequestApprovalForEmployee(Approval app) {
         System.out.println("running save new approval " + app.getRequestId().getRequestId());
 
