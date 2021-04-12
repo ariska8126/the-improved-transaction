@@ -602,6 +602,8 @@ public class AttendanceController {
                         jSONObject.put("description", "Leave failed, you've been leave on that date or you've been checkin");
                         return jSONObject.toJSONString();
                     }
+                    
+                    attendanceAttachment = "";
                 }
 
                 jSONObject.put("status", "true");
@@ -679,8 +681,8 @@ public class AttendanceController {
         return jsonObject2.toString();
     }
 
-    @GetMapping("/getatteandancebytrainner/{id}")
-    @ApiOperation(value = "Get Atttendance by Trainner")
+    @GetMapping("/getattendancebytrainer/{id}")
+    @ApiOperation(value = "Get Atttendance by Trainer")
     public String getAttendanceByTrainner(@PathVariable String id, @RequestHeader("bearer") String header) {
         JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject1 = new JSONObject();
