@@ -102,7 +102,8 @@ public class Attendance implements Serializable {
         this.attendanceLatitude = attendanceLatitude;
     }
     
-    public Attendance(String attendanceId, Date attendanceDate, Date attendanceTime, String attendanceRemark, String attendanceAttachment, String attendanceType, String attendanceLogitude, String attendanceLatitude, Users userId, AttendanceStatus attendanceStatusId) {
+    public Attendance(String attendanceId, Date attendanceDate, Date attendanceTime, String attendanceRemark, String attendanceAttachment, String attendanceType, String attendanceLogitude, String attendanceLatitude, Users userId, AttendanceStatus attendanceStatusId,
+            Date attendanceDateCreate, Date attendanceDateUpdate) {
         this.attendanceId = attendanceId;
         this.attendanceDate = attendanceDate;
         this.attendanceTime = attendanceTime;
@@ -113,7 +114,11 @@ public class Attendance implements Serializable {
         this.attendanceLatitude = attendanceLatitude;
         this.userId = userId;
         this.attendanceStatusId = attendanceStatusId;
+        this.attendanceDateCreate = attendanceDateCreate;
+        this.attendanceDateUpdate = attendanceDateUpdate;
     }
+    
+    
 
     public String getAttendanceId() {
         return attendanceId;

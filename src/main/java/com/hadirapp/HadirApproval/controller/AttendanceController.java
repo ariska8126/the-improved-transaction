@@ -286,8 +286,8 @@ public class AttendanceController {
                 }
 
                 System.out.println("Permit");
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                 SimpleDateFormat formatterComplete = new SimpleDateFormat("yyyyMMddhhmmss");
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                 SimpleDateFormat formattertime = new SimpleDateFormat("HH:mm:ss");
                 Date date = new Date();
 
@@ -302,15 +302,39 @@ public class AttendanceController {
                 String attendanceId = userId + insertDate;
                 Date currTime = formattertime.parse(time);
                 String attendanceType = "start";
+                
+                // Create at and Update at
+                
+                SimpleDateFormat formatterCreate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String createDate = formatterCreate.format(date);
+                
 
                 // Add 7 hours GMT+7
+                
+                // Create hour format
                 DateTimeFormatter localFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+                
+                // Get current time form device
                 LocalTime localGmt = LocalTime.now();
+                
+                // Parse current time to string
                 String localGmtStr = localGmt.format(localFormatter);
+                
+                // Parse string current time with hour format
                 LocalTime localTimeInsert = LocalTime.parse(localGmtStr, localFormatter);
+                
+                // Add 7 hours
                 LocalTime localTimeInsertGmt = localTimeInsert.plusHours(7);
+                
+                // Convert to string
                 String localTimeInsertGmtStr = localTimeInsertGmt.format(localFormatter);
+                
+                // Convert date
                 Date localTimeServer = formattertime.parse(localTimeInsertGmtStr);
+                
+                // Create date and update date
+                String createUpdate = currDate +" "+localTimeInsertGmtStr;
+                Date createUpdateDate = formatterCreate.parse(createUpdate);
 
                 System.out.println("CurrTime : " + currTime);
                 System.out.println("ServerTime : " + localTimeServer);
@@ -325,7 +349,9 @@ public class AttendanceController {
                         attendanceLongitude,
                         attendanceLatitude,
                         new Users(userId),
-                        new AttendanceStatus(attendanceStatusId));
+                        new AttendanceStatus(attendanceStatusId),
+                        createUpdateDate,
+                        createUpdateDate);
 
                 boolean status = false;
                 if (countAttendance == 0 && countLeave == 0) { // there is no attendance on several day and user id
@@ -420,9 +446,17 @@ public class AttendanceController {
                 LocalTime localTimeInsertGmt = localTimeInsert.plusHours(7);
                 String localTimeInsertGmtStr = localTimeInsertGmt.format(localFormatter);
                 Date localTimeServer = formattertime.parse(localTimeInsertGmtStr);
+                
+                 // Create at and Update at
+                SimpleDateFormat formatterCreate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                String createDate = formatterCreate.format(date);
 
                 System.out.println("CurrTime : " + currTime);
                 System.out.println("ServerTime : " + localTimeServer);
+                
+                // Create date and update date
+                String createUpdate = currDate +" "+localTimeInsertGmtStr;
+                Date createUpdateDate = formatterCreate.parse(createUpdate);
 
                 Attendance attendance = new Attendance(
                         attendanceId,
@@ -434,7 +468,9 @@ public class AttendanceController {
                         attendanceLongitude,
                         attendanceLatitude,
                         new Users(userId),
-                        new AttendanceStatus(attendanceStatusId));
+                        new AttendanceStatus(attendanceStatusId),
+                        createUpdateDate,
+                        createUpdateDate);
 
                 if (countAttendance == 0) { // there is no attendance on several day and user id
                     attendanceRepository.save(attendance);
@@ -534,6 +570,14 @@ public class AttendanceController {
                 LocalTime localTimeInsertGmt = localTimeInsert.plusHours(7);
                 String localTimeInsertGmtStr = localTimeInsertGmt.format(localFormatter);
                 Date localTimeServer = formattertime.parse(localTimeInsertGmtStr);
+                
+                // Create at and Update at
+                SimpleDateFormat formatterCreate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                String createDate = formatterCreate.format(date);
+                
+                // Create date and update date
+                String createUpdate = currDate +" "+localTimeInsertGmtStr;
+                Date createUpdateDate = formatterCreate.parse(createUpdate);
 
                 System.out.println("CurrTime : " + currTime);
                 System.out.println("ServerTime : " + localTimeServer);
@@ -578,7 +622,9 @@ public class AttendanceController {
                             attendanceLongitude,
                             attendanceLatitude,
                             new Users(userId),
-                            new AttendanceStatus(attendanceStatusId));
+                            new AttendanceStatus(attendanceStatusId),
+                            createUpdateDate,
+                            createUpdateDate);
 
                     if (countAttendance < 10 && countPresent == 0) { // there is no attendance on several day and user id
                         for (int i = 0; i < attendanceLeave.size(); i++) {
