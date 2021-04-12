@@ -38,6 +38,15 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Attendance.findByAttendanceLatitude", query = "SELECT a FROM Attendance a WHERE a.attendanceLatitude = :attendanceLatitude")})
 public class Attendance implements Serializable {
 
+    @Column(name = "attendance_active")
+    private String attendanceActive;
+    @Column(name = "attendance_date_create")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date attendanceDateCreate;
+    @Column(name = "attendance_date_update")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date attendanceDateUpdate;
+
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
@@ -209,6 +218,30 @@ public class Attendance implements Serializable {
     @Override
     public String toString() {
         return "com.hadirapp.HadirApproval.entity.Attendance[ attendanceId=" + attendanceId + " ]";
+    }
+
+    public String getAttendanceActive() {
+        return attendanceActive;
+    }
+
+    public void setAttendanceActive(String attendanceActive) {
+        this.attendanceActive = attendanceActive;
+    }
+
+    public Date getAttendanceDateCreate() {
+        return attendanceDateCreate;
+    }
+
+    public void setAttendanceDateCreate(Date attendanceDateCreate) {
+        this.attendanceDateCreate = attendanceDateCreate;
+    }
+
+    public Date getAttendanceDateUpdate() {
+        return attendanceDateUpdate;
+    }
+
+    public void setAttendanceDateUpdate(Date attendanceDateUpdate) {
+        this.attendanceDateUpdate = attendanceDateUpdate;
     }
     
 }
