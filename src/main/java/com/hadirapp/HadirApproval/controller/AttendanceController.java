@@ -601,10 +601,10 @@ public class AttendanceController {
                         jSONObject.put("status", "false");
                         jSONObject.put("description", "Leave failed, you've been leave on that date or you've been checkin");
                         return jSONObject.toJSONString();
-                    }
+                    }                  
                     
                     attendanceAttachment = "";
-                }
+                } 
 
                 jSONObject.put("status", "true");
                 jSONObject.put("description", "leave succesfully");
