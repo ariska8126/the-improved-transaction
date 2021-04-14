@@ -8,6 +8,7 @@ package com.hadirapp.HadirApproval.controller;
 import com.hadirapp.HadirApproval.entity.Approval;
 import com.hadirapp.HadirApproval.entity.ApprovalStatus;
 import com.hadirapp.HadirApproval.entity.Attendance;
+import com.hadirapp.HadirApproval.entity.AttendanceStatus;
 import com.hadirapp.HadirApproval.entity.Request;
 import com.hadirapp.HadirApproval.entity.Users;
 import com.hadirapp.HadirApproval.repository.ApprovalRepository;
@@ -17,6 +18,7 @@ import com.hadirapp.HadirApproval.repository.RequestRepository;
 import com.hadirapp.HadirApproval.repository.UsersRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -60,8 +62,10 @@ public class ApprovalController {
     private UsersRepository usersRepository;
 
     //read all approval by requester id
+//    @GetMapping("/getapproval")
     @GetMapping("/getapproval/{id}")
     @ApiOperation(value = "Get List Approval by UserId")
+//    public String getApprovalByRequester(@RequestHeader("bearer") String header) {
     public String getApprovalByRequester(@RequestHeader("bearer") String header,
             @PathVariable String id) {
 
@@ -78,6 +82,8 @@ public class ApprovalController {
             int roleIda = users.getRoleId().getRoleId();
             System.out.println("roleId: " + roleIda);
 
+            //update using bearer
+//            String id = users.getUserId();
 //            String requester = users.getUserId();
             if (roleIda == 2 || roleIda == 4 || roleIda == 5) {
                 System.out.println("you're authorized to access this operation");
@@ -167,18 +173,19 @@ public class ApprovalController {
 
     //read detail approval
     @GetMapping("/getattendancelistbyrequestid/{id}")
+//    @GetMapping("/getattendancelistbyrequestid")
     @ApiOperation(value = "List Attendance by Request ID")
     public String getDetailApprovalByRequestId(@RequestHeader("bearer") String header,
             @PathVariable String id) {
+//    public String getDetailApprovalByRequestId(@RequestHeader("bearer") String header) {
 //    public String getDetailApprovalByRequestId(@RequestHeader ("userId") String userId, @PathVariable String id) {
 //    public String getDetailApprovalByRequestId(@RequestBody Map<String, ?> input, @PathVariable String id) {
 //        String userId = (String) input.get("userId");
 
-        System.out.println("request id: " + id);
-
+//        System.out.println("request id: " + id);
         JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject2 = new JSONObject();
-        JSONObject jSONObject = new JSONObject();
+        JSONObject jSONObject1 = new JSONObject();
 
         int tokenExist = approvalRepository.findIfExistTokenForApproval(header);
         if (tokenExist == 1) {
@@ -190,6 +197,8 @@ public class ApprovalController {
             if (roleIda == 2 || roleIda == 4 || roleIda == 5) {
                 System.out.println("you're authorized to access this operation");
 
+                //update using bearer
+//                String id = users.getUserId();
                 //modifty get by request id
 //        System.out.println("user id: " + userId);
 //        String approver = userId;
@@ -217,7 +226,7 @@ public class ApprovalController {
                 JSONObject j = new JSONObject();
 
                 for (Attendance app : attendances) {
-//                    JSONObject jSONObject = new JSONObject();
+                    JSONObject jSONObject = new JSONObject();
                     jSONObject.put("attendanceId", app.getAttendanceId());
                     jSONObject.put("attendanceDate", app.getAttendanceDate().toString());
                     jSONObject.put("attendanceTime", app.getAttendanceTime().toString());
@@ -238,10 +247,10 @@ public class ApprovalController {
 
             } else {
                 System.out.println("access denied");
-                jSONObject.put("status", "false");
-                jSONObject.put("description", "you don't have authorization to access");
+                jSONObject1.put("status", "false");
+                jSONObject1.put("description", "you don't have authorization to access");
 
-                return jSONObject.toJSONString();
+                return jSONObject1.toJSONString();
             }
 
         } else {
@@ -263,7 +272,7 @@ public class ApprovalController {
         System.out.println("request id: " + id);
 //        JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject2 = new JSONObject();
-        JSONObject jSONObject = new JSONObject();
+        JSONObject jSONObject1 = new JSONObject();
 
         int tokenExist = approvalRepository.findIfExistTokenForApproval(header);
         if (tokenExist == 1) {
@@ -285,6 +294,7 @@ public class ApprovalController {
                 JSONObject j = new JSONObject();
 
                 for (Approval app : attendances) {
+                    JSONObject jSONObject = new JSONObject();
 
                     SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd");
                     String reqDate = formater.format(app.getRequestId().getRequestDate());
@@ -315,10 +325,10 @@ public class ApprovalController {
 
             } else {
                 System.out.println("access denied");
-                jSONObject.put("status", "false");
-                jSONObject.put("description", "you don't have authorization to access");
+                jSONObject1.put("status", "false");
+                jSONObject1.put("description", "you don't have authorization to access");
 
-                return jSONObject.toJSONString();
+                return jSONObject1.toJSONString();
             }
         } else {
             System.out.println("===== Wrong/Expire Token =====");
@@ -331,14 +341,14 @@ public class ApprovalController {
 
     //read detail approval
     @GetMapping("/getrequestbyrequestid/{id}")
-    @ApiOperation(value = "List Approval by Request ID")
+    @ApiOperation(value = "List Request by Request ID")
     public String getRequestByRequestId(@RequestHeader("bearer") String header,
             @PathVariable String id) {
 
         System.out.println("request id: " + id);
         JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject2 = new JSONObject();
-        JSONObject jSONObject = new JSONObject();
+        JSONObject jSONObject1 = new JSONObject();
 
         int tokenExist = approvalRepository.findIfExistTokenForApproval(header);
         if (tokenExist == 1) {
@@ -350,18 +360,26 @@ public class ApprovalController {
             if (roleIda == 2 || roleIda == 4 || roleIda == 5) {
                 System.out.println("you're authorized to access this operation");
 
+                int ifexistRequserId = requestRepository.findIfExistRequestByRequesId(id);
+                System.out.println("exists: "+ifexistRequserId);
+                if (ifexistRequserId == 0) {
+                    System.out.println("request status not found");
+                    jSONObject1.put("status", "false");
+                    jSONObject1.put("description", "request id not found");
+                    return jSONObject1.toJSONString();
+                }
+
                 Request request = requestRepository.findRequestByRequesId(id);
                 System.out.println("request id: " + request.getRequestId());
-                if (request == null) {
-                    System.out.println("request status not found");
-                }
 
                 JSONArray jSONArray = new JSONArray();
                 JSONObject j = new JSONObject();
+//                JSONObject j2 = new JSONObject();
 
                 SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd");
                 String reqDate = formater.format(request.getRequestDate());
                 System.out.println("req date: " + reqDate);
+                JSONObject jSONObject = new JSONObject();
                 jSONObject.put("requestId", request.getRequestId());
                 // modify date format for request date
                 jSONObject.put("requestDate", reqDate);
@@ -370,15 +388,16 @@ public class ApprovalController {
                 jSONObject.put("requestDateEnd", request.getRequestDateEnd().toString());
 
                 j.put("request", jSONObject);
+                j.put("status", "true");
 
                 return j.toString();
 
             } else {
                 System.out.println("access denied");
-                jSONObject.put("status", "false");
-                jSONObject.put("description", "you don't have authorization to access");
+                jSONObject1.put("status", "false");
+                jSONObject1.put("description", "you don't have authorization to access");
 
-                return jSONObject.toJSONString();
+                return jSONObject1.toJSONString();
             }
 
         } else {
@@ -390,8 +409,10 @@ public class ApprovalController {
         }
     }
 
+//    @RequestMapping(value = "/checkattendance", method = RequestMethod.GET)
     @RequestMapping(value = "/checkattendance/{userId}", method = RequestMethod.GET)
     @ApiOperation(value = "Cek Status Approval sebelum Create New")
+//    public String cekStatusApproval(@RequestHeader("bearer") String header) {
     public String cekStatusApproval(@RequestHeader("bearer") String header,
             @PathVariable String userId) {
 
@@ -410,6 +431,8 @@ public class ApprovalController {
             if (roleIda == 2 || roleIda == 4 || roleIda == 5) {
                 System.out.println("you're authorized to access this operation");
 
+                //update user id from bearer
+//                String userId = users.getUserId();
                 int cekIfExistRequest = approvalRepository.cekIfExistApprovalThisMonth(userId);
                 if (cekIfExistRequest == 1) {
                     System.out.println("request untuk bulan lalu sudah dibuat");
@@ -498,14 +521,16 @@ public class ApprovalController {
         }
     }
 
+//    @RequestMapping(value = "/getAttendancebyLastMonth", method = RequestMethod.GET)
     @RequestMapping(value = "/getAttendancebyLastMonth/{userId}", method = RequestMethod.GET)
     @ApiOperation(value = "Cek Attendance sebelum Create New")
+//    public String cekAttendance(@RequestHeader("bearer") String header) {
     public String cekAttendance(@RequestHeader("bearer") String header,
             @PathVariable String userId) {
 
         JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject2 = new JSONObject();
-        JSONObject jSONObject = new JSONObject();
+        JSONObject jsonObject1 = new JSONObject();
 
         int tokenExist = approvalRepository.findIfExistTokenForApproval(header);
         if (tokenExist == 1) {
@@ -517,6 +542,7 @@ public class ApprovalController {
             if (roleIda == 2 || roleIda == 4 || roleIda == 5) {
                 System.out.println("you're authorized to access this operation");
 
+//                String userId = users.getUserId();
                 SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd");
                 Calendar cal = Calendar.getInstance();
                 cal.add(Calendar.MONTH, -1);
@@ -565,6 +591,7 @@ public class ApprovalController {
                 JSONObject j = new JSONObject();
 
                 for (Attendance app : attendances) {
+                    JSONObject jSONObject = new JSONObject();
                     jSONObject.put("attendanceId", app.getAttendanceId());
                     jSONObject.put("attendanceDate", app.getAttendanceDate().toString());
                     jSONObject.put("attendanceTime", app.getAttendanceTime().toString());
@@ -585,10 +612,10 @@ public class ApprovalController {
 
             } else {
                 System.out.println("access denied");
-                jSONObject.put("status", "false");
-                jSONObject.put("description", "you don't have authorization to access");
+                jsonObject1.put("status", "false");
+                jsonObject1.put("description", "you don't have authorization to access");
 
-                return jSONObject.toJSONString();
+                return jsonObject1.toJSONString();
             }
 
         } else {
@@ -778,7 +805,7 @@ public class ApprovalController {
 
 //update approval
     @RequestMapping(value = "/update/{id}", method = RequestMethod.PUT)
-    @ApiOperation(value = "${ApprovalController.updatebyid}")
+    @ApiOperation(value = "Update Approval by Approval Id}")
     public String updateApproval(@RequestHeader("bearer") String header,
             @RequestBody Map<String, ?> input, @PathVariable String id) {
 
@@ -926,8 +953,8 @@ public class ApprovalController {
     @PutMapping("/updateAttendance/{id}")
     @ApiOperation(value = "Update Attendance by attendance ID")
     public String updateDetailApprovalByAttendanceId(@RequestHeader("bearer") String header,
-            @PathVariable String id, @RequestBody Attendance attendance) {
-//            @PathVariable String id, @RequestBody Map<String, ?> input) {
+            //            @PathVariable String id, @RequestBody Attendance attendance) {
+            @PathVariable String id, @RequestBody Map<String, ?> input) throws ParseException {
 
         System.out.println("attendance id: " + id);
 
@@ -944,19 +971,28 @@ public class ApprovalController {
             System.out.println("roleId: " + roleIda);
             if (roleIda == 5) {
                 System.out.println("you're authorized to access this operation");
-                
-//                String approvalRemark = (String) input.get("approvalRemark");
-//                String approvalStatus = (String) input.get("approvalStatusId");
-//                String approvalUserId = (String) input.get("userId");
 
-//                Attendance attendances = attendanceRepository.findByAttendanceId(id);
-                attendance.setAttendanceId(id);
+                String attendance_time_s = (String) input.get("attendance_time");
+                SimpleDateFormat formattertime = new SimpleDateFormat("HH:mm:ss");
+                Date attendance_time = formattertime.parse(attendance_time_s);
+
+                String attendance_type = (String) input.get("attendance_type");
+                String attendance_remark = (String) input.get("attendance_remark");
+                String attendance_attachment = (String) input.get("attendance_attachment");
+                String attendance_status_id = (String) input.get("attendance_status_id");
+                Date updateDate = new Date();
+                System.out.println("update date: " + updateDate);
+
+                Attendance attendance = attendanceRepository.findByAttendanceId(id);
+
+                attendance.setAttendanceTime(attendance_time);
+                attendance.setAttendanceAttachment(attendance_attachment);
+                attendance.setAttendanceRemark(attendance_remark);
+                attendance.setAttendanceType(attendance_type);
+                attendance.setAttendanceStatusId(new AttendanceStatus(Integer.parseInt(attendance_status_id)));
+                attendance.setAttendanceDateUpdate(updateDate);
+
                 attendanceRepository.save(attendance);
-                
-//                System.out.println("attendances: " + attendances);
-//                if (attendances == null) {
-//                    System.out.println("attendance not found");
-//                }
 
                 System.out.println("save update success");
                 jSONObject.put("status", "true");
@@ -981,7 +1017,7 @@ public class ApprovalController {
 //        return "test";
     }
 
-    @DeleteMapping("/deleteattendance/{id}")
+    @PutMapping("/deleteattendance/{id}")
     @ApiOperation(value = "delete Attendance by attendance ID")
     public String deleteDetailApprovalByAttendanceId(@RequestHeader("bearer") String header,
             @PathVariable String id) {
@@ -1002,8 +1038,12 @@ public class ApprovalController {
             System.out.println("roleId: " + roleIda);
             if (roleIda == 5) {
                 System.out.println("you're authorized to access this operation");
-                
-                attendanceRepository.deleteById(id);
+
+                Date now = new Date();
+                Attendance attendance = attendanceRepository.findByAttendanceId(id);
+                attendance.setAttendanceActive("false");
+                attendance.setAttendanceDateUpdate(now);
+                attendanceRepository.save(attendance);
 
                 System.out.println("delete success");
                 jSONObject.put("status", "true");
@@ -1027,7 +1067,7 @@ public class ApprovalController {
         }
 //        return "test";
     }
-    
+
     private void createRequestApprovalForEmployee(Approval app) {
         System.out.println("running save new approval " + app.getRequestId().getRequestId());
 
