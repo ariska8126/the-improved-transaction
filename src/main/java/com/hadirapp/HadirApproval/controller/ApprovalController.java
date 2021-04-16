@@ -20,16 +20,20 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -173,16 +177,10 @@ public class ApprovalController {
 
     //read detail approval
     @GetMapping("/getattendancelistbyrequestid/{id}")
-//    @GetMapping("/getattendancelistbyrequestid")
     @ApiOperation(value = "List Attendance by Request ID")
     public String getDetailApprovalByRequestId(@RequestHeader("bearer") String header,
             @PathVariable String id) {
-//    public String getDetailApprovalByRequestId(@RequestHeader("bearer") String header) {
-//    public String getDetailApprovalByRequestId(@RequestHeader ("userId") String userId, @PathVariable String id) {
-//    public String getDetailApprovalByRequestId(@RequestBody Map<String, ?> input, @PathVariable String id) {
-//        String userId = (String) input.get("userId");
 
-//        System.out.println("request id: " + id);
         JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject2 = new JSONObject();
         JSONObject jSONObject1 = new JSONObject();
@@ -197,25 +195,6 @@ public class ApprovalController {
             if (roleIda == 2 || roleIda == 4 || roleIda == 5) {
                 System.out.println("you're authorized to access this operation");
 
-                //update using bearer
-//                String id = users.getUserId();
-                //modifty get by request id
-//        System.out.println("user id: " + userId);
-//        String approver = userId;
-//        int roleId = approvalRepository.findRoleUserbyId(userId);
-//        System.out.println("user " + roleId);
-//        if (roleId == 4) {
-//            approver = userId;
-//        } else if (roleId == 2) {
-//            approver = approvalRepository.findTrainerIdByManager(id, userId);
-//        } else if(roleId == 5){
-//            String employeeBootcampId = bootcampDetailRepository.getEmployeeBootcampId(userId);
-//            System.out.println("bootcamp id");
-//            approver = bootcampDetailRepository.getTrainerByBootcampId(employeeBootcampId);
-//        }
-//        System.out.println("approver: " + approver);
-                // end modify
-//        List<Attendance> attendances = attendanceRepository.findDetailApprovalByRequestID(id, approver);
                 List<Attendance> attendances = attendanceRepository.findDetailApprovalByRequestIDnew(id);
                 System.out.println("attendances: " + attendances);
                 if (attendances == null) {
@@ -260,7 +239,6 @@ public class ApprovalController {
 
             return jsonObject2.toJSONString();
         }
-//        return "test";
     }
 
     //read detail approval
@@ -361,7 +339,7 @@ public class ApprovalController {
                 System.out.println("you're authorized to access this operation");
 
                 int ifexistRequserId = requestRepository.findIfExistRequestByRequesId(id);
-                System.out.println("exists: "+ifexistRequserId);
+                System.out.println("exists: " + ifexistRequserId);
                 if (ifexistRequserId == 0) {
                     System.out.println("request status not found");
                     jSONObject1.put("status", "false");
@@ -1015,6 +993,131 @@ public class ApprovalController {
             return jsonObject2.toJSONString();
         }
 //        return "test";
+    }
+
+    @PostMapping(path = "/updateattendancenew/{startid}/{endid}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Update Attendance by attendance ID - New")
+    public String updateByAttendanceId(@RequestHeader("bearer") String header,
+            //    public String updateByAttendanceId(
+            @PathVariable String startid,
+            @PathVariable String endid,
+            @RequestBody Map<String, Object> input) throws net.minidev.json.parser.ParseException, ParseException {
+
+        JSONObject jsonObject2 = new JSONObject();
+        JSONObject jSONObject = new JSONObject();
+
+        int tokenExist = approvalRepository.findIfExistTokenForApproval(header);
+        if (tokenExist == 1) {
+
+            Users users = usersRepository.findUserByToken(header);
+            System.out.println("user email: " + users.getUserEmail());
+            int roleIda = users.getRoleId().getRoleId();
+            String userId = users.getUserId();
+            System.out.println("userId: "+userId);
+            
+            Attendance startAttendance = attendanceRepository.findByAttendanceId(startid);
+            Attendance endAttendance = attendanceRepository.findByAttendanceId(endid);
+            
+            String startUser = startAttendance.getUserId().getUserId();
+            System.out.println("start user: "+startUser);
+            String endUser = endAttendance.getUserId().getUserId();
+            System.out.println("end user: "+endUser);
+            
+            System.out.println("roleId: " + roleIda);
+            if ((userId == null ? startUser == null : userId.equals(startUser)) && (userId == null ? endUser == null : userId.equals(endUser))) {
+                System.out.println("you're authorized to access this operation");
+
+                System.out.println("startid: " + startid);
+                System.out.println("endid: " + endid);
+
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm:ss");
+
+                List<Map<Object, Object>> startidValue = (List<Map<Object, Object>>) input.get(startid);
+                List<Map<Object, Object>> endidValue = (List<Map<Object, Object>>) input.get(endid);
+
+                ArrayList<String> listStr = new ArrayList<>();
+                for (Map entry : startidValue) {
+                    listStr.add(entry.get("attendanceStatus").toString());
+                    listStr.add(entry.get("startAttendanceDate").toString());
+                    listStr.add(entry.get("startAttendanceTime").toString());
+                }
+
+                String startAttendanceStatus = listStr.get(0);
+                String startAttendanceDate = listStr.get(1);
+                String startAttendanceTime = listStr.get(2);
+
+                System.out.println(startAttendanceStatus);
+                System.out.println(startAttendanceDate);
+                System.out.println(startAttendanceTime);
+
+                
+
+                Date startDate = formatter.parse(startAttendanceDate);
+                System.out.println("start date: " + startDate);
+
+                Date startTime = timeFormatter.parse(startAttendanceTime);
+                System.out.println("start time: " + startTime);
+                Date updateDate = new Date();
+
+                startAttendance.setAttendanceDate(startDate);
+                startAttendance.setAttendanceTime(startTime);
+                startAttendance.setAttendanceType(startAttendanceStatus);
+                startAttendance.setAttendanceDateUpdate(updateDate);
+                attendanceRepository.save(startAttendance);
+                System.out.println("finish start date");
+
+                ArrayList<String> listEnd = new ArrayList<>();
+                for (Map entry : endidValue) {
+                    listEnd.add(entry.get("attendanceStatus").toString());
+                    listEnd.add(entry.get("startAttendanceDate").toString());
+                    listEnd.add(entry.get("startAttendanceTime").toString());
+                }
+
+                String endAttendanceStatus = listEnd.get(0);
+                String endAttendanceDate = listEnd.get(1);
+                String endAttendanceTime = listEnd.get(2);
+
+                System.out.println(endAttendanceStatus);
+                System.out.println(endAttendanceDate);
+                System.out.println(endAttendanceTime);
+
+                
+
+                Date endDate = formatter.parse(endAttendanceDate);
+                System.out.println("end date: " + endDate);
+
+                Date endTime = timeFormatter.parse(endAttendanceTime);
+                System.out.println("end time: " + endTime);
+
+                endAttendance.setAttendanceDate(endDate);
+                endAttendance.setAttendanceTime(endTime);
+                endAttendance.setAttendanceType(endAttendanceStatus);
+                endAttendance.setAttendanceDateUpdate(updateDate);
+                attendanceRepository.save(endAttendance);
+                System.out.println("finish end date");
+
+                JSONObject returnJSON = new JSONObject();
+                returnJSON.put("status", "true");
+                returnJSON.put("description", "update successfully");
+
+                return returnJSON.toString();
+                
+            } else {
+                System.out.println("access denied");
+                jSONObject.put("status", "false");
+                jSONObject.put("description", "you don't have authorization to access");
+
+                return jSONObject.toJSONString();
+            }
+
+        } else {
+            System.out.println("===== Wrong/Expire Token =====");
+            jsonObject2.put("status", "false");
+            jsonObject2.put("description", "you don't have authorization to access");
+
+            return jsonObject2.toJSONString();
+        }
     }
 
     @PutMapping("/deleteattendance/{id}")
