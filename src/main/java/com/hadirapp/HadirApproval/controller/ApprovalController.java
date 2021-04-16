@@ -1120,15 +1120,15 @@ public class ApprovalController {
         }
     }
 
-    @PutMapping("/deleteattendance/{id}")
+    @PutMapping("/deleteattendance/{startid}/{endid}")
     @ApiOperation(value = "delete Attendance by attendance ID")
     public String deleteDetailApprovalByAttendanceId(@RequestHeader("bearer") String header,
-            @PathVariable String id) {
+            @PathVariable String startid,@PathVariable String endid) {
 //            @PathVariable String id, @RequestBody Map<String, ?> input) {
 
-        System.out.println("attendance id: " + id);
+        System.out.println("startid: " + startid);
+        System.out.println("end id: " + endid);
 
-        JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject2 = new JSONObject();
         JSONObject jSONObject = new JSONObject();
 
@@ -1143,10 +1143,16 @@ public class ApprovalController {
                 System.out.println("you're authorized to access this operation");
 
                 Date now = new Date();
-                Attendance attendance = attendanceRepository.findByAttendanceId(id);
-                attendance.setAttendanceActive("false");
-                attendance.setAttendanceDateUpdate(now);
-                attendanceRepository.save(attendance);
+                Attendance attendanceStart = attendanceRepository.findByAttendanceId(startid);
+                attendanceStart.setAttendanceActive("true");
+                attendanceStart.setAttendanceStatusId(new AttendanceStatus(6));
+                attendanceRepository.save(attendanceStart);
+                
+                Attendance attendanceEnd = attendanceRepository.findByAttendanceId(endid);
+                attendanceEnd.setAttendanceActive("false");
+                attendanceEnd.setAttendanceType("leave");
+                attendanceEnd.setAttendanceStatusId(new AttendanceStatus(6));
+                attendanceRepository.save(attendanceEnd);
 
                 System.out.println("delete success");
                 jSONObject.put("status", "true");
