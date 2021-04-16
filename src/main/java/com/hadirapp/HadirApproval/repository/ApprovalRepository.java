@@ -74,5 +74,8 @@ public interface ApprovalRepository extends JpaRepository<Approval, String> {
     //select approval by request id and trainer id = x
     @Query(value="SELECT a.* FROM `approval` a JOIN approval_status ap ON a.approval_status_id = ap.approval_status_id WHERE a.approval_approver_id = ?2 AND a.request_id = ?1", nativeQuery = true)
     public Approval findByRequestAndTrainerId(@Param ("id") String requestId,@Param ("trainerid") String trainerId);
+    
+    @Query(value = "SELECT IF(EXISTS(SELECT * FROM users WHERE users.user_token = ?1),1,0)", nativeQuery = true)
+    public int findIfExistTokenForApproval(@Param("token") String mail);
 
 }

@@ -10,6 +10,7 @@ import com.hadirapp.HadirApproval.entity.AttendanceStatus;
 import com.hadirapp.HadirApproval.entity.Bootcamp;
 import com.hadirapp.HadirApproval.entity.CalendarHoliday;
 import com.hadirapp.HadirApproval.entity.Users;
+import com.hadirapp.HadirApproval.repository.ApprovalRepository;
 import com.hadirapp.HadirApproval.repository.AttendanceRepository;
 import com.hadirapp.HadirApproval.repository.HolidayRepository;
 import com.hadirapp.HadirApproval.repository.UsersRepository;
@@ -17,8 +18,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -26,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +53,9 @@ public class AttendanceController {
 
     @Autowired
     HolidayRepository holidayRepository;
+
+    @Autowired
+    private ApprovalRepository approvalRepository;
 
     @GetMapping("/getreport/{id}")
     @ApiOperation(value = "Get attendance report for selected employee")
@@ -527,6 +528,8 @@ public class AttendanceController {
         String attendanceLatitude = (String) input.get("attendanceLatitude");
         String startDate = (String) input.get("startDate");
         String endDate = (String) input.get("endDate");
+        
+        
 
         JSONObject jSONObject = new JSONObject();
         int tokenExist = attendanceRepository.findIfExistToken(header);
@@ -552,12 +555,14 @@ public class AttendanceController {
                 SimpleDateFormat formatterComplete = new SimpleDateFormat("yyyyMMddhhmm");
                 SimpleDateFormat formattertime = new SimpleDateFormat("HH:mm:ss");
                 Date date = new Date();
+                
+                //Date startDateLeave = formatter.parse(startDate);
 
                 String currDate = formatter.format(date);
                 String time = formattertime.format(date);
                 Date currentDate = formatter.parse(currDate);
                 int countAttendance = attendanceRepository.validateLeave(currDate, userId);
-                int countPresent = attendanceRepository.validateCheckin(currDate, userId);
+                int countPresent = attendanceRepository.validateCheckin(startDate, userId);
 
                 Date currTime = formattertime.parse(time);
                 String attendanceType = "leave";
@@ -634,7 +639,7 @@ public class AttendanceController {
                         }
 
                         if (status == true) {
-                            System.out.println("Status : "+status);
+                            System.out.println("Status : " + status);
                             jSONObject.put("status", "false");
                             jSONObject.put("description", "Leave failed, you've been leave on that date");
                             return jSONObject.toJSONString();
@@ -642,15 +647,15 @@ public class AttendanceController {
                             attendanceRepository.save(attendance);
                             System.out.println("SUCCESS LEAVE");
                         }
-                        
+
                     } else {
                         jSONObject.put("status", "false");
                         jSONObject.put("description", "Leave failed, you've been leave on that date or you've been checkin");
                         return jSONObject.toJSONString();
-                    }                  
-                    
+                    }
+
                     attendanceAttachment = "";
-                } 
+                }
 
                 jSONObject.put("status", "true");
                 jSONObject.put("description", "leave succesfully");
@@ -673,58 +678,121 @@ public class AttendanceController {
 
     }
 
-    @GetMapping("/gettenattendance/{trainerId}")
+    @GetMapping("/gettenattendance")
+//    @GetMapping("/gettenattendance/{trainerId}")
     @ApiOperation(value = "Get 10 attendance")
-    public String getLastTenAttendanceByTrainer(@PathVariable String trainerId) {
+    public String getLastTenAttendanceByTrainer(@RequestHeader("bearer") String header) {
+//    public String getLastTenAttendanceByTrainer(@RequestHeader("bearer") String header,
+//            @PathVariable String trainerId) {
 
-        String bootcampId = usersRepository.findBootcampidByUserId(trainerId);
-
-        List<Attendance> attendance = attendanceRepository.findLastAttendanceByBootcampId(bootcampId);
-        JSONArray jsonArray = new JSONArray();
+        JSONObject jsonObject = new JSONObject();
         JSONObject jsonObject2 = new JSONObject();
+        JSONObject jSONObject = new JSONObject();
 
-        for (Attendance attendances : attendance) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("id", attendances.getAttendanceId());
-            jsonObject.put("date", attendances.getAttendanceDate().toString());
-            jsonObject.put("time", attendances.getAttendanceTime().toString());
-            jsonObject.put("remark", attendances.getAttendanceRemark());
-            jsonObject.put("type", attendances.getAttendanceType());
-            jsonObject.put("status", attendances.getAttendanceStatusId().getAttendanceStatusName());
-            jsonObject.put("employee", attendances.getUserId().getUserFullname());
-            jsonArray.add(jsonObject);
+        int tokenExist = approvalRepository.findIfExistTokenForApproval(header);
+        if (tokenExist == 1) {
+
+            Users users = usersRepository.findUserByToken(header);
+            System.out.println("user email: " + users.getUserEmail());
+            int roleIda = users.getRoleId().getRoleId();
+            System.out.println("roleId: " + roleIda);
+            if (roleIda == 4) {
+                System.out.println("you're authorized to access this operation");
+                String trainerId = users.getUserId();
+
+                String bootcampId = usersRepository.findBootcampidByUserId(trainerId);
+
+                List<Attendance> attendance = attendanceRepository.findLastAttendanceByBootcampId(bootcampId);
+                JSONArray jsonArray = new JSONArray();
+
+                for (Attendance attendances : attendance) {
+
+                    jsonObject.put("id", attendances.getAttendanceId());
+                    jsonObject.put("date", attendances.getAttendanceDate().toString());
+                    jsonObject.put("time", attendances.getAttendanceTime().toString());
+                    jsonObject.put("remark", attendances.getAttendanceRemark());
+                    jsonObject.put("type", attendances.getAttendanceType());
+                    jsonObject.put("status", attendances.getAttendanceStatusId().getAttendanceStatusName());
+                    jsonObject.put("employee", attendances.getUserId().getUserFullname());
+                    jsonArray.add(jsonObject);
+                }
+
+                jsonObject2.put("attendance_list", jsonArray);
+
+                return jsonObject2.toString();
+
+            } else {
+                System.out.println("access denied");
+                jSONObject.put("status", "false");
+                jSONObject.put("description", "you don't have authorization to access");
+
+                return jSONObject.toJSONString();
+            }
+
+        } else {
+            System.out.println("===== Wrong/Expire Token =====");
+            jsonObject2.put("status", "false");
+            jsonObject2.put("description", "you don't have authorization to access");
+
+            return jsonObject2.toJSONString();
         }
-
-        jsonObject2.put("attendance_list", jsonArray);
-
-        return jsonObject2.toString();
     }
 
-    @GetMapping("/gettenleave/{trainerId}")
+    @GetMapping("/gettenleave")
+//    @GetMapping("/gettenleave/{trainerId}")
     @ApiOperation(value = "Get 10 Leave")
-    public String getLastTenLeaveByTrainer(@PathVariable String trainerId) {
+    public String getLastTenLeaveByTrainer(@RequestHeader("bearer") String header) {
+//    public String getLastTenLeaveByTrainer(@PathVariable String trainerId) {
 
-        String bootcampId = usersRepository.findBootcampidByUserId(trainerId);
-
-        List<Attendance> attendance = attendanceRepository.findLastLeaveByBootcampId(bootcampId);
-        JSONArray jsonArray = new JSONArray();
+        JSONObject jsonObject = new JSONObject();
         JSONObject jsonObject2 = new JSONObject();
+        JSONObject jSONObject = new JSONObject();
 
-        for (Attendance attendances : attendance) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("id", attendances.getAttendanceId());
-            jsonObject.put("date", attendances.getAttendanceDate().toString());
-            jsonObject.put("time", attendances.getAttendanceTime().toString());
-            jsonObject.put("remark", attendances.getAttendanceRemark());
-            jsonObject.put("type", attendances.getAttendanceType());
-            jsonObject.put("status", attendances.getAttendanceStatusId().getAttendanceStatusName());
-            jsonObject.put("employee", attendances.getUserId().getUserFullname());
-            jsonArray.add(jsonObject);
+        int tokenExist = approvalRepository.findIfExistTokenForApproval(header);
+        if (tokenExist == 1) {
+
+            Users users = usersRepository.findUserByToken(header);
+            System.out.println("user email: " + users.getUserEmail());
+            int roleIda = users.getRoleId().getRoleId();
+            System.out.println("roleId: " + roleIda);
+            if (roleIda == 4) {
+                System.out.println("you're authorized to access this operation");
+                String trainerId = users.getUserId();
+                String bootcampId = usersRepository.findBootcampidByUserId(trainerId);
+
+                List<Attendance> attendance = attendanceRepository.findLastLeaveByBootcampId(bootcampId);
+                JSONArray jsonArray = new JSONArray();
+
+                for (Attendance attendances : attendance) {
+
+                    jsonObject.put("id", attendances.getAttendanceId());
+                    jsonObject.put("date", attendances.getAttendanceDate().toString());
+                    jsonObject.put("time", attendances.getAttendanceTime().toString());
+                    jsonObject.put("remark", attendances.getAttendanceRemark());
+                    jsonObject.put("type", attendances.getAttendanceType());
+                    jsonObject.put("status", attendances.getAttendanceStatusId().getAttendanceStatusName());
+                    jsonObject.put("employee", attendances.getUserId().getUserFullname());
+                    jsonArray.add(jsonObject);
+                }
+
+                jsonObject2.put("attendance_list", jsonArray);
+
+                return jsonObject2.toString();
+
+            } else {
+                System.out.println("access denied");
+                jSONObject.put("status", "false");
+                jSONObject.put("description", "you don't have authorization to access");
+
+                return jSONObject.toJSONString();
+            }
+        } else {
+            System.out.println("===== Wrong/Expire Token =====");
+            jsonObject2.put("status", "false");
+            jsonObject2.put("description", "you don't have authorization to access");
+
+            return jsonObject2.toJSONString();
         }
-
-        jsonObject2.put("attendance_list", jsonArray);
-
-        return jsonObject2.toString();
     }
 
     @GetMapping("/getattendancebytrainer/{id}")
