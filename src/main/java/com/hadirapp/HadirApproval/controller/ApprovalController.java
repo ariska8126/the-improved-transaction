@@ -322,7 +322,7 @@ public class ApprovalController {
             @PathVariable String id) {
 
         System.out.println("request id: " + id);
-        JSONArray jsonArray = new JSONArray();
+        
         JSONObject jsonObject2 = new JSONObject();
         JSONObject jSONObject1 = new JSONObject();
 
@@ -348,7 +348,6 @@ public class ApprovalController {
                 Request request = requestRepository.findRequestByRequesId(id);
                 System.out.println("request id: " + request.getRequestId());
 
-                JSONArray jSONArray = new JSONArray();
                 JSONObject j = new JSONObject();
 //                JSONObject j2 = new JSONObject();
 
@@ -394,7 +393,6 @@ public class ApprovalController {
 
         JSONObject jSONObject = new JSONObject();
 
-        JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject2 = new JSONObject();
 
         int tokenExist = approvalRepository.findIfExistTokenForApproval(header);
@@ -504,7 +502,6 @@ public class ApprovalController {
     public String cekAttendance(@RequestHeader("bearer") String header,
             @PathVariable String userId) {
 
-        JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject2 = new JSONObject();
         JSONObject jsonObject1 = new JSONObject();
 
@@ -612,7 +609,6 @@ public class ApprovalController {
             @RequestBody Map<String, ?> input) {
 //    public String createNewRequestApprovalLastMonth(@PathVariable("id") String userId) {
 
-        JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject2 = new JSONObject();
         JSONObject jSONObject = new JSONObject();
 
@@ -667,8 +663,7 @@ public class ApprovalController {
                 }
 
                 System.out.println("belum create request app");
-//        //save new request
-//        //generate requestId
+                
                 Date sekarang = new Date();
 
                 //now is for last month
@@ -939,7 +934,6 @@ public class ApprovalController {
 
         System.out.println("attendance id: " + id);
 
-        JSONArray jsonArray = new JSONArray();
         JSONObject jsonObject2 = new JSONObject();
         JSONObject jSONObject = new JSONObject();
 
