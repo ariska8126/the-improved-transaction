@@ -54,7 +54,7 @@ public interface ApprovalRepository extends JpaRepository<Approval, String> {
     @Query(value = "SELECT d.division_id FROM users u JOIN division d ON d.division_id = u.division_id WHERE user_id = ?1", nativeQuery = true)
     public String findDivisionByUserId(@Param("id") String id);
 
-    @Query(value = "SELECT user_id FROM `users` WHERE division_id = ?1 AND role_id = '2'", nativeQuery = true)
+    @Query(value = "SELECT user_id FROM `users` WHERE division_id = ?1 AND role_id = '2' and user_active = 'true'", nativeQuery = true)
     public String findManagerIdbyDivision(@Param("id") String id);
 
     @Query(value = "SELECT role_id FROM users WHERE user_id = ?1", nativeQuery = true)

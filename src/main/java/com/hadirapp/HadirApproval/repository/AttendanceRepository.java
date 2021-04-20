@@ -29,7 +29,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance, String> 
             + "WHERE r.request_id = :rid AND approval_approver_id = :id", nativeQuery = true)
     List<Attendance> findDetailApprovalByRequestID(@Param("rid") String rid, @Param("id") String id);
 
-    @Query(value = "SELECT * FROM `attendance` WHERE attendance_date BETWEEN :startDate AND :endDate "
+    @Query(value = "SELECT * FROM `attendance` WHERE attendance_active = 'true' AND attendance_date BETWEEN :startDate AND :endDate "
             + "AND user_id = :userId "
             + "ORDER BY attendance_date DESC, attendance_time ASC", nativeQuery = true)
     List<Attendance> findLastMonthAttendanceByUserId(@Param("userId") String userId, @Param("startDate") 
@@ -37,11 +37,11 @@ public interface AttendanceRepository extends JpaRepository<Attendance, String> 
 
     //list attendance by request id
     @Query(value = "SELECT att.* FROM approval a JOIN users u ON a.approval_requester_id = u.user_id JOIN attendance att ON att.user_id = u.user_id "
-            + "JOIN request r ON a.request_id = r.request_id WHERE r.request_id = :rid AND att.attendance_date BETWEEN r.request_date_start "
+            + "JOIN request r ON a.request_id = r.request_id WHERE attendance_active = 'true' AND r.request_id = :rid AND att.attendance_date BETWEEN r.request_date_start "
             + "AND r.request_date_end ORDER BY att.attendance_date DESC, att.attendance_time ASC", nativeQuery = true)
     List<Attendance> findDetailApprovalByRequestIDnew(@Param("rid") String rid);
 
-    @Query(value = "SELECT * FROM attendance where attendance.user_id = :userId ORDER BY attendance_date DESC, attendance_time ASC", nativeQuery = true)
+    @Query(value = "SELECT * FROM attendance where attendance_active = 'true' and attendance.user_id = :userId ORDER BY attendance_date DESC, attendance_time ASC", nativeQuery = true)
     public Iterable<Attendance> getAllAttendanceById(@Param("userId") String userId);
 
     //get user by id
